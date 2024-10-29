@@ -1,1 +1,23 @@
-Created test.txt file
+convert method:
+
+public Authentication convert(HttpServletRequest request) {  //we are extracting the cert-subject and X-Real IP
+		String certSubject = request.getHeader(QUERIER_CERT_SUBJECT);
+		String ip = request.getHeader(QUERIER_IP);
+		if(certSubject == null && ip == null) {
+			return null;
+		}
+		String certFingerPrint = request.getHeader(QUERIER_CERT_FINGERPRINT);
+		String issuer = request.getHeader(QUERIER_CERT_ISSUER);
+		String cacert = request.getHeader(QUERIER_CERT_CACERT);
+		X509Certificate encodedCert = decodeCertificate(cacert);
+		String cacertSubject = null;
+		String caFingerPrint = null;
+		if(encodedCert != null) {
+			cacertSubject  = encodedCert.getIssuerX500Principal().getName();
+			caFingerPrint = determineFingerPrint(encodedCert);
+		}
+		
+		IPAuthentication result = IPAuthentication.unauthenticated(ip,certSubject,issuer,cacertSubject,caFingerPrint,certFingerPrint,null,null);
+		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		return result;
+	}

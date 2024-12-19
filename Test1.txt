@@ -1,0 +1,352 @@
+package com.neustar.qi.service;
+
+import com.neustar.qi.Exception.*;
+import com.neustar.qi.cache.Constants;
+import com.neustar.qi.jpa.model.*;
+import com.neustar.qi.request.model.QiResponse;
+import com.neustar.qi.request.model.ReqContext;
+import com.neustart.qi.util.LoggMessages;
+import com.neustart.qi.util.Qstat;
+import com.neustart.qi.util.ServiceConstants;
+import com.neustart.qi.util.TierIndicator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import java.sql.SQLException;
+
+@Slf4j
+@Service("pfServiceHandler")
+public class PfServiceHandler extends ServiceHandler {
+
+
+    public void processCc1CountryRequest(ReqContext reqContext,QiResponse response) throws InvalidCountryAccessException, InvalidTnLengthException, BlockNotFoundException, SQLException {
+        String countryCode = reqContext.getDeducedCc();
+        String queryTn = reqContext.getQueryTn();
+        String searchTn  = reqContext.getTnToSearch();
+        String npa = searchTn.substring(0,3);
+        CustProf custProf  = reqContext.getDeducedCustomer();
+        int custId = reqContext.getCustId().intValue();
+        String custStr = String.valueOf(custId);
+        verifyCc1CountryAccess(reqContext,countryCode,npa,custStr);
+        verifyExtCc1CountryAccess(reqContext);
+        getCBMData(reqContext, searchTn,countryCode);
+        verifyMinMaxTnLengthInGnp(reqContext,searchTn,countryCode);
+        verifyBlock(reqContext, countryCode);
+        reqContext.setSs7DipIndicator(generatePDICountryStatus(reqContext.isOnboardData()));
+        log.info("port Indicator " + reqContext.getSs7DipIndicator() + " onboard data " + reqContext.isOnboardData());
+        InNrsGetData inData = getInNrsGetData(reqContext);
+        OutNrsGetData outData = callGetData(reqContext,inData);
+        handleEtnoOverride(reqContext, outData);
+        log.debug("outData " + outData);
+        if(processWhitelistedResponse(reqContext,outData,response)){
+             log.debug(LoggMessages.QI_SERVICE_4009+"Whitelist response has been processed for cust id : " + custId + " tn : " + queryTn);
+            return ;
+        }
+        if(reqContext.isPortOfCall()){
+            if(outData.getTnFromNpac() == 1){
+               // reqContext.setUsNumPorted(true);
+                reqContext.setPorted(true);
+                reqContext.setTnInSvNpb(true);
+            }
+            else if(custProf.getType1_DataNeeded().equalsIgnoreCase("y")){
+                log.debug(LoggMessages.QI_SERVICE_4010+" Tn is not ported, Processing type1 override for : " + custId + " tn : " + queryTn);
+                processType1Data(reqContext, outData);
+            }
+        }
+        try {
+            checkRegionAccess(reqContext, outData);
+        }
+        catch (NoRegionAccessException e) {
+            log.debug("No region access while processing custId : "+ custId + " tn : " + queryTn);
+            hasCountryAccess(reqContext);
+            CBM cbm = reqContext.getBlockData();
+            if(!reqContext.isType1Override() &&  (reqContext.getQstat() .equals( Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS) && cbm.getNpEnabled().equalsIgnoreCase("y"))){
+                cbm.setSpid("");
+                cbm.setAltspid("");
+            }
+
+           createResponse(reqContext, outData, response);
+        }
+        log.info("onboard " + reqContext.isOnboardData());
+        if(reqContext.getQstat().equalsIgnoreCase(Qstat.Q_STAT_DEFAULT))
+          hasCountryAccess(reqContext);
+        if(reqContext.getQstat().equalsIgnoreCase(Qstat.Q_STAT_DEFAULT))
+            checkCc1Portability(reqContext);
+        if(outData.getRetCode() < 0 && outData.getRetCode() != -3 && reqContext.getQstat().equalsIgnoreCase(Qstat.Q_STAT_DEFAULT)) {
+            log.debug(LoggMessages.QI_SERVICE_4011+"Received error code "+outData.getRetCode()  + " while processing cust id : " + custId + " tn : " + queryTn);
+            reqContext.setQstat(Qstat.Q_STAT_INSUFF_DATA);
+        }
+
+        if(outData.getNuvoCorrStat()  > 0){
+            log.debug(LoggMessages.QI_SERVICE_4012+" Nuvo correction is done hence suppressing the mvno lookup for  while processing cust id : " + custId + " tn : " + queryTn);
+            reqContext.setMvno_lookup_required(false);
+        }
+        else {
+            isMvnoLookupRequired(reqContext, outData);
+        }
+
+        if(!reqContext.isOnboardData() && outData.getMvnoCustId() <=0 && outData.getAltSpnId() < 0){
+            reqContext.setSs7DipRequired(true);
+        }
+
+        String qstat = reqContext.getQstat();
+        CBM cbm = reqContext.getBlockData();
+        //setting the responses fields
+        if(!reqContext.isPorted()) {
+            log.debug(LoggMessages.QI_SERVICE_4014+" Tn is not ported hence processing block response for : " + custId + " tn : " + queryTn);
+            if (!reqContext.isType1Override() && ((qstat .equals( Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS)) || (!reqContext.isOnboardData() && (outData.getAltSpnId() < 0)) || (reqContext.isNpacSupported() && !reqContext.isRegionAccess())) && cbm.getNpEnabled().equalsIgnoreCase("y")) {
+                deriveNpdi(reqContext, outData);
+                outData.setSpid("");
+                reqContext.setTnInSvNpb(false);
+                cbm.setSpid("");
+                cbm.setAltspid("");
+            }
+            createBlockResponse(reqContext,outData,response);
+        }
+        else{
+            String spid = outData.getSpid();
+            boolean etnoOverride = isEtnoOverride(custProf,  outData);
+            boolean overrideRouteInfo = etnoOverride && outData.getMvnoCustId() == -1;
+            String portLrn = outData.getPortLrn();
+            if(spid != null && !spid.isEmpty() && !reqContext.isType1Override()){
+                if(reqContext.isTnInSvNpb())
+                    reqContext.setInfoSrc(ServiceConstants.INFO_SRC_NPB);
+                else
+                    reqContext.setInfoSrc(ServiceConstants.INFO_SRC_SV);
+
+
+            }
+            if (!reqContext.isType1Override() && ((qstat.equals(Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS)) || (!reqContext.isOnboardData() && (outData.getAltSpnId() < 0)|| (reqContext.isNpacSupported() && !reqContext.isRegionAccess()))) && cbm.getNpEnabled().equalsIgnoreCase("y")) {
+                   String lrn6Digit = outData.getLrn6d();
+                portLrn = isEtnoDipRequired(custProf,reqContext)? lrn6Digit : "";
+                deriveNpdi(reqContext, outData);
+                outData.setSpid(outData.getOcn());
+                reqContext.setTnInSvNpb(!outData.getOcn().isEmpty());
+                cbm.setSpid("");
+                cbm.setAltspid("");
+                if(!overrideRouteInfo){
+                    if(lrn6Digit != null && !lrn6Digit.isEmpty()){
+                        reqContext.setInfoSrc(ServiceConstants.INFO_SRC_ETNO_TN);
+                    }
+                    else{
+                        reqContext.setInfoSrc(ServiceConstants.INFO_SRC_ETNO_PB);
+                    }
+                }
+            }
+            reqContext.setLrn(portLrn);
+            createResponse(reqContext, outData,response);
+            log.debug(LoggMessages.QI_SERVICE_4015+" Information source "+ reqContext.getInfoSrc() + "cust id  : " + custId + " tn : " + queryTn);
+        }
+        return ;
+    }
+
+    public void processNonCc1CountryRequest(ReqContext reqContext,QiResponse response) throws InvalidCountryAccessException, InvalidTnLengthException, BlockNotFoundException, SQLException {
+        String countryCode = reqContext.getDeducedCc();
+        String queryTn = reqContext.getQueryTn();
+        String searchTn  = reqContext.getTnToSearch();
+        CustProf custProf = reqContext.getDeducedCustomer();
+        int custId = reqContext.getCustId().intValue();
+        String custStr = String.valueOf(custId);
+        verifyCountryAccess(reqContext,countryCode,custStr);
+        verifyExtCountryAccess(reqContext);
+        getCBMData(reqContext,searchTn,countryCode);
+        verifyMinMaxTnLengthInGnp(reqContext,searchTn,countryCode);
+        verifyBlock(reqContext, countryCode);
+        reqContext.setSs7DipIndicator(generatePDICountryStatus(reqContext.isOnboardData()));
+        InNrsGetData inData = getInNrsGetData(reqContext);
+        OutNrsGetData outData = callGetData(reqContext,inData);
+        if(processWhitelistedResponse(reqContext,outData, response)){
+            log.debug(LoggMessages.QI_SERVICE_4016+"Whitelist response has been processed for cust id : " + custId + " tn : " + queryTn);
+            return ;
+        }
+        if(reqContext.isPortOfCall()){
+            if(outData.getTnFromNpac() == 1){
+                // reqContext.setUsNumPorted(true);
+                reqContext.setPorted(true);
+                reqContext.setTnInSvNpb(true);
+            }
+            else if(custProf.getType1_DataNeeded().equalsIgnoreCase("y")){
+                log.debug(LoggMessages.QI_SERVICE_4017+" Tn is not ported, Processing type1 override for : " + custId + " tn : " + queryTn);
+                processType1Data(reqContext, outData);
+            }
+        }
+        if(reqContext.getQstat().equalsIgnoreCase(Qstat.Q_STAT_DEFAULT))
+                 hasCountryAccess(reqContext);
+        if(reqContext.getQstat().equalsIgnoreCase(Qstat.Q_STAT_DEFAULT))
+                 checkRowPortability(reqContext);
+        if(outData.getNuvoCorrStat()  > 0){
+            log.debug(LoggMessages.QI_SERVICE_4018+" Nuvo correction is done hence suppressing the mvno lookup  while processing cust id : " + custId + " tn : " + queryTn);
+            reqContext.setMvno_lookup_required(false);
+        }
+        else {
+            isMvnoLookupRequired(reqContext, outData);
+        }
+        if(!reqContext.isOnboardData() && outData.getMvnoCustId() <=0 && outData.getAltSpnId() < 0){
+           reqContext.setSs7DipRequired(true);
+        }
+
+        String qstat = reqContext.getQstat();
+        CBM cbm = reqContext.getBlockData();
+        //setting the responses fields
+        if(!reqContext.isPorted()) {
+            log.debug(LoggMessages.QI_SERVICE_4020+" Tn is not ported hence processing block response for : " + custId + " tn : " + queryTn);
+            if (!reqContext.isType1Override() && ((qstat.equals( Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS)) || (!reqContext.isOnboardData() && (outData.getAltSpnId() < 0))) && cbm.getNpEnabled().equalsIgnoreCase("y")) {
+                deriveNpdi(reqContext, outData);
+                outData.setSpid("");
+                reqContext.setTnInSvNpb(false);
+                cbm.setSpid("");
+                cbm.setAltspid("");
+            }
+            createBlockResponse(reqContext,outData,response);
+        }
+        else{
+            String spid = outData.getSpid();
+            String portLrn = outData.getPortLrn();
+            reqContext.setLrn(portLrn);
+            if(outData.getSpid() != null && !outData.getSpid().isEmpty() && !reqContext.isType1Override()){
+                reqContext.setInfoSrc(ServiceConstants.INFO_SRC_INTL_SV);
+            }
+            if (!reqContext.isType1Override() && ((qstat.equals( Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS) )|| (!reqContext.isOnboardData() && (outData.getAltSpnId() < 0)))&& cbm.getNpEnabled().equalsIgnoreCase("y")) {
+                deriveNpdi(reqContext, outData);
+                outData.setSpid(outData.getOcn());
+                reqContext.setTnInSvNpb(!outData.getOcn().isEmpty());
+                cbm.setSpid("");
+                cbm.setAltspid("");
+            }
+            log.debug(LoggMessages.QI_SERVICE_4021+" Information source "+ reqContext.getInfoSrc() + "cust id  : " + custId + " tn : " + queryTn);
+            createResponse(reqContext, outData,response);
+        }
+    }
+
+
+    private InNrsGetData getInNrsGetData(ReqContext reqContext){
+        Long custId = reqContext.getCustId();
+        CustProf custProf = reqContext.getDeducedCustomer();
+        String countryCode = reqContext.getDeducedCc();
+        String tn = reqContext.getTnToSearch();
+        CBM cbm = reqContext.getBlockData();
+        InNrsGetData inData = new InNrsGetData();
+        inData.setCc(countryCode);
+        boolean doEtnoDip = countryCode.equals("1") && custProf.getEtnoDataNeeded().equalsIgnoreCase("y");
+        inData.setDoEtnoDip(doEtnoDip);
+        inData.setNpacSupported(reqContext.isNpacSupported());
+        inData.setNpEnabled(cbm.getNpEnabled().equalsIgnoreCase("y"));
+        inData.setLnpEnabled(reqContext.isLnpEnabled());
+        log.info(" is mvno required " +isMvnoRequired(reqContext));
+        inData.setMvnoRequired(isMvnoRequired(reqContext));
+        inData.setCallerId(custId.intValue());
+        inData.setDoPortedDip(reqContext.isOnboardData()?1:0);
+        inData.setBlockRegionId(Integer.parseInt(cbm.getRegionid()));
+        inData.setParentAuthCustId(-1); // need to see
+        inData.setAuth(-1); // set if current context has isauthoritative to true
+        inData.setPortOfCall(custProf.getPortofcallFlag().equalsIgnoreCase("y"));
+        inData.setEtnoOverride(custProf.getEtnoOverride().equalsIgnoreCase("y"));
+        inData.setSbCust(0);
+        inData.setTn(tn);
+        return inData;
+    }
+
+    public boolean validateWhitelistedData(getDataEtnoOut outData){
+        return outData.getSpn() > 0;
+    }
+
+    public boolean validateWhitelistedData(OutNrsGetData outData){
+        return outData.getDbSpnId() > 0;
+    }
+
+    public void createResponse(ReqContext reqContext, OutNrsGetData outData,QiResponse response){
+        String qstat = reqContext.getQstat();
+        String countryCode = reqContext.getDeducedCc();
+        CBM cbm = reqContext.getBlockData();
+        int dbspn = outData.getDbSpnId();
+        int dbAltSpn = outData.getAltSpnId();
+        String blkSpn =  cbm.getSpn() ;
+        String blkAltSpn  = cbm.getAltspn();
+        if(dbspn != -1){
+            if (qstat.equals(Qstat.Q_STAT_DEFAULT) && reqContext.isPortOfCall()) {
+                //check ownership needs to be implemented
+                int blkSpnInt = blkSpn != null ? Integer.parseInt(blkSpn):-1;
+                int blkAltSpnInt = blkAltSpn != null ? Integer.parseInt(blkAltSpn):-1;
+                if(checkOwnershipChanges(blkSpnInt, blkAltSpnInt, dbspn, dbAltSpn)){
+                    reqContext.setQstat(Qstat.Q_STAT_PROV_CHGD);
+                }
+                else{
+                    reqContext.setQstat(Qstat.Q_STAT_PROV_NOT_CHGD);
+                }
+            }
+            if(outData.getDbSpnId() == outData.getAltSpnId()){
+                outData.setAltSpnId(-1);
+            }
+            if(reqContext.isType1Override()){
+                reqContext.setInfoSrc(ServiceConstants.INFO_SRC_TYPE1_TN);
+            }
+            else if(outData.getMvnoCustId() > 0){
+                reqContext.setInfoSrc(ServiceConstants.INFO_SRC_MVNO);
+                outData.setDbTierFlag(2);
+            }else{
+                reqContext.setInfoSrc(ServiceConstants.INFO_SRC_PORTED);
+            }
+            qstat = reqContext.getQstat();
+            response.setQStat(qstat);
+            response.setNpdi(reqContext.isNpdi()?"true":"false");
+            response.setInfoSrc(reqContext.getInfoSrc());
+            response.setDesc(Qstat.getQstatDesc(reqContext.getQstat()));
+            response.setSpn(String.valueOf(outData.getDbSpnId()));
+            setSpnName(response.getSpn(), countryCode, response);
+            response.setAltSpn(String.valueOf(outData.getAltSpnId()));
+            response.setRn(reqContext.getLrn());
+            setWirelessMccMnc(outData.getDbWless(), response, outData.getMcc(), outData.getMnc());
+            int regionId = outData.getRegionId();
+            CustNpacContract npacContract = cacheContainer.retrieveValue(Constants.CUST_NPAC_CONTRACT, reqContext.getCustId() + ":" + countryCode + ":" +regionId);
+            response.setNpacContractSigned(npacContract == null);
+            String spid = outData.getSpid();
+            if(spid == null || spid.isEmpty() || spid.equalsIgnoreCase("-1")  ){
+               // response.setRegid(cbm.getSpid());
+                setSpid(cbm.getSpid(), response.isNpacContractSigned(),response,cbm.getOcn());
+            }
+            else {
+                //response.setRegid(spid);
+                setSpid(spid, response.isNpacContractSigned(),response, cbm.getOcn());
+            }
+            GNP gnp = reqContext.getGnp();
+            if(gnp != null){
+                response.setGnpTypeId(gnp.getServiceTypeId());
+            }
+
+            if(blkSpn != null){
+                response.setNpSpn(blkSpn);
+            }
+
+            if(blkAltSpn != null){
+                response.setNpAltspn(blkAltSpn);
+            }
+            deriveVoipIndicator(reqContext, outData.getAltSpnId(), outData.getDbWless(),cbm.getTypeId(),0 );
+            updateVoip(reqContext,response);
+
+            if(reqContext.isWhitelisted() || reqContext.isType1Override()){
+                reqContext.setTierIndicator(TierIndicator.TIER_TWO.tierIndicator);
+            }
+            else {
+                reqContext.setTierIndicator(String.valueOf(outData.getDbTierFlag()));
+            }
+
+            response.setPortInd(reqContext.getSs7DipIndicator());
+            translateResponse(reqContext, response);
+
+        }
+        else{
+            //reqContext.setQstat(Qstat.Q_STAT_PROV_CHGD);
+            createBlockResponse(reqContext,outData,response);
+
+        }
+    }
+
+    public void translateResponse(ReqContext reqContext, QiResponse response){
+        CustProf custProf = reqContext.getDeducedCustomer();
+        if(custProf.getSubstituteAltspn().equalsIgnoreCase("y")){
+            if(response.getAltSpn() != null && Integer.parseInt(response.getAltSpn()) > 0 ) {
+                response.setSpn(response.getAltSpn());
+                response.setAltSpn("-1");
+            }
+        }
+    }
+}

@@ -1,23 +1,51 @@
-convert method:
+public void hasCountryAccess(ReqContext reqContext){
+		if(reqContext.isOnboardData()){
+			if(!reqContext.isLnpEnabled()){
+					reqContext.setQstat(Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS);
+			}
+		}
+		else {
+			if(reqContext.isExtCtryAllowed()){
+				reqContext.setQstat(Qstat.Q_STAT_NO_EXT_COUNTRY_ACCESS);
+			}
+		}
+	}
 
-public Authentication convert(HttpServletRequest request) {  //we are extracting the cert-subject and X-Real IP
-		String certSubject = request.getHeader(QUERIER_CERT_SUBJECT);
-		String ip = request.getHeader(QUERIER_IP);
-		if(certSubject == null && ip == null) {
-			return null;
+	public void checkCc1Portability(ReqContext reqContext){
+		CBM cbm = reqContext.getBlockData();
+		if(cbm!=null && cbm.getNpEnabled() != null &&  !cbm.getNpEnabled().equalsIgnoreCase("y")){
+			if(!checkCc1NpEnabled(reqContext)){
+				reqContext.setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
+				reqContext.setNpdi(false);
+			}
+			else{
+				reqContext.setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
+			}
 		}
-		String certFingerPrint = request.getHeader(QUERIER_CERT_FINGERPRINT);
-		String issuer = request.getHeader(QUERIER_CERT_ISSUER);
-		String cacert = request.getHeader(QUERIER_CERT_CACERT);
-		X509Certificate encodedCert = decodeCertificate(cacert);
-		String cacertSubject = null;
-		String caFingerPrint = null;
-		if(encodedCert != null) {
-			cacertSubject  = encodedCert.getIssuerX500Principal().getName();
-			caFingerPrint = determineFingerPrint(encodedCert);
+	}
+
+	public void checkRowPortability(ReqContext reqContext){
+		CBM cbm = reqContext.getBlockData();
+		if(cbm!=null && cbm.getNpEnabled() != null &&  !cbm.getNpEnabled().equalsIgnoreCase("y")){
+			if(!checkRowNpEnabled(reqContext)){
+				reqContext.setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
+				reqContext.setNpdi(false);
+			}
+			else{
+				reqContext.setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
+			}
 		}
-		
-		IPAuthentication result = IPAuthentication.unauthenticated(ip,certSubject,issuer,cacertSubject,caFingerPrint,certFingerPrint,null,null);
-		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
-		return result;
+	}
+
+	public boolean checkCc1NpEnabled(ReqContext reqContext) {
+		String countryCode = reqContext.getDeducedCc();
+		String searchTn  = reqContext.getTnToSearch();
+		String npa = searchTn.substring(0,3);
+		String searchKey = countryCode+":"+npa;
+		Cc1Country cc1Country  = cacheContainer.retrieveValue(Constants.CC1_COUNTRY,searchKey);
+		if(cc1Country != null ){
+			String npEnable = cc1Country.getNpEnabled();
+			return npEnable.equalsIgnoreCase("y");
+		}
+		return false;
 	}

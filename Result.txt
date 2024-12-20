@@ -1,0 +1,154 @@
+@Test
+public void testHasCountryAccess_OnboardData_LnpDisabled() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+
+    Mockito.when(mockReqContext.isOnboardData()).thenReturn(true);
+    Mockito.when(mockReqContext.isLnpEnabled()).thenReturn(false);
+
+    MyClassUnderTest myClass = new MyClassUnderTest();
+    myClass.hasCountryAccess(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS);
+}
+
+@Test
+public void testHasCountryAccess_OnboardData_LnpEnabled() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+
+    Mockito.when(mockReqContext.isOnboardData()).thenReturn(true);
+    Mockito.when(mockReqContext.isLnpEnabled()).thenReturn(true);
+
+    MyClassUnderTest myClass = new MyClassUnderTest();
+    myClass.hasCountryAccess(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+}
+
+@Test
+public void testHasCountryAccess_NotOnboardData_ExtCtryAllowed() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+
+    Mockito.when(mockReqContext.isOnboardData()).thenReturn(false);
+    Mockito.when(mockReqContext.isExtCtryAllowed()).thenReturn(true);
+
+    MyClassUnderTest myClass = new MyClassUnderTest();
+    myClass.hasCountryAccess(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NO_EXT_COUNTRY_ACCESS);
+}
+
+@Test
+public void testHasCountryAccess_NotOnboardData_ExtCtryNotAllowed() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+
+    Mockito.when(mockReqContext.isOnboardData()).thenReturn(false);
+    Mockito.when(mockReqContext.isExtCtryAllowed()).thenReturn(false);
+
+    MyClassUnderTest myClass = new MyClassUnderTest();
+    myClass.hasCountryAccess(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+}
+
+
+
+@Test
+public void testCheckCc1Portability_CbmNpDisabled_CorrectionNotSupported() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CBM mockCbm = Mockito.mock(CBM.class);
+
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("n");
+    Mockito.when(mockReqContext.checkCc1NpEnabled()).thenReturn(false);
+
+    MyClassUnderTest myClass = Mockito.spy(new MyClassUnderTest());
+    Mockito.doReturn(false).when(myClass).checkCc1NpEnabled(mockReqContext);
+
+    myClass.checkCc1Portability(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
+    Mockito.verify(mockReqContext).setNpdi(false);
+}
+
+@Test
+public void testCheckCc1Portability_CbmNpDisabled_PortableCountry() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CBM mockCbm = Mockito.mock(CBM.class);
+
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("n");
+    Mockito.when(mockReqContext.checkCc1NpEnabled()).thenReturn(true);
+
+    MyClassUnderTest myClass = Mockito.spy(new MyClassUnderTest());
+    Mockito.doReturn(true).when(myClass).checkCc1NpEnabled(mockReqContext);
+
+    myClass.checkCc1Portability(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(false);
+}
+
+@Test
+public void testCheckCc1Portability_CbmNpEnabled() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CBM mockCbm = Mockito.mock(CBM.class);
+
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("y");
+
+    MyClassUnderTest myClass = new MyClassUnderTest();
+    myClass.checkCc1Portability(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(Mockito.anyBoolean());
+}
+
+
+@Test
+public void testCheckCc1NpEnabled_ValidCountryNpEnabled() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CacheContainer mockCacheContainer = Mockito.mock(CacheContainer.class);
+    Cc1Country mockCc1Country = Mockito.mock(Cc1Country.class);
+
+    Mockito.when(mockReqContext.getDeducedCc()).thenReturn("91");
+    Mockito.when(mockReqContext.getTnToSearch()).thenReturn("9876543210");
+    Mockito.when(mockCacheContainer.retrieveValue(Constants.CC1_COUNTRY, "91:987")).thenReturn(mockCc1Country);
+    Mockito.when(mockCc1Country.getNpEnabled()).thenReturn("y");
+
+    MyClassUnderTest myClass = new MyClassUnderTest(mockCacheContainer);
+    boolean result = myClass.checkCc1NpEnabled(mockReqContext);
+
+    Assert.assertTrue(result);
+}
+
+@Test
+public void testCheckCc1NpEnabled_ValidCountryNpDisabled() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CacheContainer mockCacheContainer = Mockito.mock(CacheContainer.class);
+    Cc1Country mockCc1Country = Mockito.mock(Cc1Country.class);
+
+    Mockito.when(mockReqContext.getDeducedCc()).thenReturn("91");
+    Mockito.when(mockReqContext.getTnToSearch()).thenReturn("9876543210");
+    Mockito.when(mockCacheContainer.retrieveValue(Constants.CC1_COUNTRY, "91:987")).thenReturn(mockCc1Country);
+    Mockito.when(mockCc1Country.getNpEnabled()).thenReturn("n");
+
+    MyClassUnderTest myClass = new MyClassUnderTest(mockCacheContainer);
+    boolean result = myClass.checkCc1NpEnabled(mockReqContext);
+
+    Assert.assertFalse(result);
+}
+
+@Test
+public void testCheckCc1NpEnabled_NoCountryFound() {
+    ReqContext mockReqContext = Mockito.mock(ReqContext.class);
+    CacheContainer mockCacheContainer = Mockito.mock(CacheContainer.class);
+
+    Mockito.when(mockReqContext.getDeducedCc()).thenReturn("91");
+    Mockito.when(mockReqContext.getTnToSearch()).thenReturn("9876543210");
+    Mockito.when(mockCacheContainer.retrieveValue(Constants.CC1_COUNTRY, "91:987")).thenReturn(null);
+
+    MyClassUnderTest myClass = new MyClassUnderTest(mockCacheContainer);
+    boolean result = myClass.checkCc1NpEnabled(mockReqContext);
+
+    Assert.assertFalse(result);
+}

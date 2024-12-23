@@ -12,5 +12,66 @@ public void checkRowPortability(ReqContext reqContext){
 	}
 
 
+//
+
+@Test
+public void testCheckRowPortability_CbmNull() {
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(null);
+
+    serviceHandler.checkRowPortability(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(Mockito.anyBoolean());
+}
+
+@Test
+public void testCheckRowPortability_NpEnabledNull() {
+    CBM mockCbm = Mockito.mock(CBM.class);
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn(null);
+
+    serviceHandler.checkRowPortability(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(Mockito.anyBoolean());
+}
+
+@Test
+public void testCheckRowPortability_NpEnabledNotY_CheckRowNpDisabled() {
+    CBM mockCbm = Mockito.mock(CBM.class);
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("n");
+    Mockito.when(serviceHandler.checkRowNpEnabled(mockReqContext)).thenReturn(false);
+
+    serviceHandler.checkRowPortability(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
+    Mockito.verify(mockReqContext).setNpdi(false);
+}
+
+@Test
+public void testCheckRowPortability_NpEnabledNotY_CheckRowNpEnabled() {
+    CBM mockCbm = Mockito.mock(CBM.class);
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("n");
+    Mockito.when(serviceHandler.checkRowNpEnabled(mockReqContext)).thenReturn(true);
+
+    serviceHandler.checkRowPortability(mockReqContext);
+
+    Mockito.verify(mockReqContext).setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(Mockito.anyBoolean());
+}
+
+@Test
+public void testCheckRowPortability_NpEnabledY() {
+    CBM mockCbm = Mockito.mock(CBM.class);
+    Mockito.when(mockReqContext.getBlockData()).thenReturn(mockCbm);
+    Mockito.when(mockCbm.getNpEnabled()).thenReturn("y");
+
+    serviceHandler.checkRowPortability(mockReqContext);
+
+    Mockito.verify(mockReqContext, Mockito.never()).setQstat(Mockito.anyString());
+    Mockito.verify(mockReqContext, Mockito.never()).setNpdi(Mockito.anyBoolean());
+}
 
 

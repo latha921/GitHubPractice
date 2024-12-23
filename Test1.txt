@@ -75,3 +75,5 @@ public void testCheckRowPortability_NpEnabledY() {
 }
 
 
+Cannot invoke "com.neustar.qi.cache.CacheContainer.retrieveValue(String, Object)" because "<local3>.cacheContainer" is null
+java.lang.NullPointerException: Cannot invoke "com.neustar.qi.cache.CacheContainer.retrieveValue(String, Object)" because "<local3>.cacheContainer" is null

@@ -75,5 +75,18 @@ public void testCheckRowPortability_NpEnabledY() {
 }
 
 
+
+
+Currently SIPIX GUI log files dont have file permission to read log files by mtail to scrape the error metrics. Below are the error logs from mtail application. Need to update the log files permissions to 644 from application level and changes should reflect on below prod hosts
+
+ch03-enum-prod-sipix-lnp01
+ch03-enum-prod-sipix-lnp02
+dc15-enum-prod-sipix-lnp01
+dc15-enum-prod-sipix-lnp02 
+
+enum-mtail-1  | I1202 13:21:41.432080       1 tail.go:355] open /data/ENUM/logs/sipix-gui/sipix_gui.log: permission denied
+enum-mtail-1  | I1202 13:21:41.432140       1 tail.go:355] open /data/ENUM/logs/sipix-gui/sipix_gui_general.log: permission denied
+
+
 Cannot invoke "com.neustar.qi.cache.CacheContainer.retrieveValue(String, Object)" because "<local3>.cacheContainer" is null
 java.lang.NullPointerException: Cannot invoke "com.neustar.qi.cache.CacheContainer.retrieveValue(String, Object)" because "<local3>.cacheContainer" is null

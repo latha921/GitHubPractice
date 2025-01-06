@@ -1,3 +1,45 @@
+Week - 2:
+public void verifyExtCc1CountryAccess(ReqContext reqContext){
+		String countryCode = reqContext.getDeducedCc();
+		String searchTn  = reqContext.getTnToSearch();
+		String npa = searchTn.substring(0,3);
+		Long custId = reqContext.getCustId();
+		String searchKey = custId+":"+countryCode+":"+npa;
+		CustCc1CountryExt custCc1CountryExt = cacheContainer.retrieveValue(Constants.CUST_CC1_COUNTRY_EXT,searchKey);
+        reqContext.setExtCtryAllowed(custCc1CountryExt != null);
+    }
+
+	public void verifyExtCountryAccess(ReqContext reqContext){
+		String countryCode = reqContext.getDeducedCc();
+		String searchTn  = reqContext.getTnToSearch();
+		Long custId = reqContext.getCustId();
+		String searchKey = custId+":"+countryCode;
+		CustCountryExt custCountryExt = cacheContainer.retrieveValue(Constants.CUST_COUNTRY_EXT,searchKey);
+        reqContext.setExtCtryAllowed(custCountryExt != null);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public void checkRowPortability(ReqContext reqContext){
 		CBM cbm = reqContext.getBlockData();
 		if(cbm!=null && cbm.getNpEnabled() != null &&  !cbm.getNpEnabled().equalsIgnoreCase("y")){

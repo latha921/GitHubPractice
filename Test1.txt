@@ -20,6 +20,106 @@ public void verifyExtCc1CountryAccess(ReqContext reqContext){
 
 
 
+import org.mockito.Mock;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import static org.mockito.Mockito.*;
+
+public class VerifyCountryAccessTest {
+
+    @Mock
+    private CacheContainer cacheContainer;
+
+    @Mock
+    private ReqContext reqContext;
+
+    @Mock
+    private CustCc1CountryExt custCc1CountryExt;
+
+    @Mock
+    private CustCountryExt custCountryExt;
+
+    @InjectMocks
+    private MyClassUnderTest myClassUnderTest;
+
+    @BeforeMethod
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testVerifyExtCc1CountryAccess_CustCc1CountryExtExists() {
+        String countryCode = "US";
+        String searchTn = "1234567890";
+        Long custId = 123L;
+        String searchKey = custId + ":" + countryCode + ":" + searchTn.substring(0, 3);
+
+        when(reqContext.getDeducedCc()).thenReturn(countryCode);
+        when(reqContext.getTnToSearch()).thenReturn(searchTn);
+        when(reqContext.getCustId()).thenReturn(custId);
+        when(cacheContainer.retrieveValue(Constants.CUST_CC1_COUNTRY_EXT, searchKey)).thenReturn(custCc1CountryExt);
+
+        myClassUnderTest.verifyExtCc1CountryAccess(reqContext);
+
+        verify(reqContext).setExtCtryAllowed(true);
+    }
+
+    @Test
+    public void testVerifyExtCc1CountryAccess_CustCc1CountryExtDoesNotExist() {
+        String countryCode = "US";
+        String searchTn = "1234567890";
+        Long custId = 123L;
+        String searchKey = custId + ":" + countryCode + ":" + searchTn.substring(0, 3);
+
+        when(reqContext.getDeducedCc()).thenReturn(countryCode);
+        when(reqContext.getTnToSearch()).thenReturn(searchTn);
+        when(reqContext.getCustId()).thenReturn(custId);
+        when(cacheContainer.retrieveValue(Constants.CUST_CC1_COUNTRY_EXT, searchKey)).thenReturn(null);
+
+        myClassUnderTest.verifyExtCc1CountryAccess(reqContext);
+
+        verify(reqContext).setExtCtryAllowed(false);
+    }
+
+    @Test
+    public void testVerifyExtCountryAccess_CustCountryExtExists() {
+        String countryCode = "US";
+        String searchTn = "1234567890";
+        Long custId = 123L;
+        String searchKey = custId + ":" + countryCode;
+
+        when(reqContext.getDeducedCc()).thenReturn(countryCode);
+        when(reqContext.getTnToSearch()).thenReturn(searchTn);
+        when(reqContext.getCustId()).thenReturn(custId);
+        when(cacheContainer.retrieveValue(Constants.CUST_COUNTRY_EXT, searchKey)).thenReturn(custCountryExt);
+
+        myClassUnderTest.verifyExtCountryAccess(reqContext);
+
+        verify(reqContext).setExtCtryAllowed(true);
+    }
+
+    @Test
+    public void testVerifyExtCountryAccess_CustCountryExtDoesNotExist() {
+        String countryCode = "US";
+        String searchTn = "1234567890";
+        Long custId = 123L;
+        String searchKey = custId + ":" + countryCode;
+
+        when(reqContext.getDeducedCc()).thenReturn(countryCode);
+        when(reqContext.getTnToSearch()).thenReturn(searchTn);
+        when(reqContext.getCustId()).thenReturn(custId);
+        when(cacheContainer.retrieveValue(Constants.CUST_COUNTRY_EXT, searchKey)).thenReturn(null);
+
+        myClassUnderTest.verifyExtCountryAccess(reqContext);
+
+        verify(reqContext).setExtCtryAllowed(false);
+    }
+}
+
+
 
 
 

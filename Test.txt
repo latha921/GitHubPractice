@@ -1,3 +1,64 @@
+Week - 3
+
+
+public void checkRegionAccess(ReqContext reqContext,OutNrsGetData outData) throws NoRegionAccessException {
+		String countryCode = reqContext.getDeducedCc();
+		Long custId = reqContext.getCustId();
+		CBM cbm = reqContext.getBlockData();
+		CustProf custProf = reqContext.getDeducedCustomer();
+		boolean doEtnoDip = isEtnoDipRequired(custProf, reqContext);
+		int blkRegionId  = Integer.parseInt(cbm.getRegionid());
+		int dbRegionId = outData.getRegionId();
+		boolean isCanadianTn  = dbRegionId == 7 ||(dbRegionId < 0  && blkRegionId == 7);
+		if(reqContext.isType1Override()) {
+			reqContext.setRegionAccess(true);
+		} else if(reqContext.isNpacSupported() ){
+			if((dbRegionId >=0 && !isNpacAvailableForRegion(countryCode,custId.intValue(),dbRegionId) )||
+					(dbRegionId <  0 && !isNpacAvailableForRegion(countryCode,custId.intValue(),blkRegionId))){
+				if(!doEtnoDip || isCanadianTn){
+					reqContext.setQstat(Qstat.Q_STAT_NO_REGION_ACCESS);
+					reqContext.setNpdi(false);
+					throw new NoRegionAccessException("No region available");
+				}
+				reqContext.setRegionAccess(false);
+
+			}
+			else{
+				reqContext.setRegionAccess(true);
+			}
+		}
+	}
+
+
+
+public getDataEtnoOut  processTollFreeNumber(ReqContext reqContext,long custId, String countryCode) throws InvalidTnLengthException, TollFreeErrorException, SQLException {
+		String searchTn = reqContext.getSearchTn();
+		String npa = searchTn.substring(0,3);
+		Set<String> allowed8xxSet = appConfig.getAllowed8xxSet();
+		if(allowed8xxSet != null && allowed8xxSet.contains(npa)) {
+			CustProf custProf = reqContext.getDeducedCustomer();
+			if (custProf != null && custProf.getTollFreeFlag().equalsIgnoreCase("y")) {
+				int tollFreeNumberLength = appConfig.getTollFreeNumberLength();
+				int tnLength = reqContext.getTnLength();
+				if (tnLength < tollFreeNumberLength) {
+					reqContext.setQstat(Qstat.Q_STAT_TN_INVALID_MIN_LENGTH);
+					throw new InvalidTnLengthException("Invalid toll free tn length ");
+				} else if (tnLength > tollFreeNumberLength) {
+					reqContext.setQstat(Qstat.Q_STAT_TN_INVALID_MAX_LENGTH);
+					throw new InvalidTnLengthException("Invalid tolld free tn length");
+				}
+				getDataEtnoIn inData = new getDataEtnoIn(custId,countryCode,searchTn,false,"-1",false,false,false,true);
+				return callGetDataEtno(reqContext,inData);
+			}
+		}
+		return null;
+	}
+
+----------
+
+
+
+
 public void hasCountryAccess(ReqContext reqContext){
 		if(reqContext.isOnboardData()){
 			if(!reqContext.isLnpEnabled()){

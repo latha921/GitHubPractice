@@ -55,7 +55,123 @@ public getDataEtnoOut  processTollFreeNumber(ReqContext reqContext,long custId, 
 	}
 
 ----------
+import org.mockito.Mock;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
+import java.sql.SQLException;
+
+import static org.mockito.Mockito.*;
+
+public class AccessVerificationTest {
+
+    @Mock
+    private ReqContext reqContext;
+
+    @Mock
+    private OutNrsGetData outData;
+
+    @Mock
+    private CBM cbm;
+
+    @Mock
+    private CustProf custProf;
+
+    @Mock
+    private AppConfig appConfig;
+
+    @InjectMocks
+    private MyClassUnderTest myClassUnderTest;
+
+    @BeforeMethod
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test(expectedExceptions = NoRegionAccessException.class)
+    public void testCheckRegionAccess_NoRegionAccessException() throws NoRegionAccessException {
+        when(reqContext.getDeducedCc()).thenReturn("US");
+        when(reqContext.getCustId()).thenReturn(123L);
+        when(reqContext.getBlockData()).thenReturn(cbm);
+        when(cbm.getRegionid()).thenReturn("7");
+        when(outData.getRegionId()).thenReturn(-1);
+        when(reqContext.isNpacSupported()).thenReturn(true);
+        when(myClassUnderTest.isEtnoDipRequired(custProf, reqContext)).thenReturn(false);
+
+        myClassUnderTest.checkRegionAccess(reqContext, outData);
+
+        verify(reqContext).setQstat(Qstat.Q_STAT_NO_REGION_ACCESS);
+        verify(reqContext).setNpdi(false);
+    }
+
+    @Test
+    public void testCheckRegionAccess_RegionAccessGranted() throws NoRegionAccessException {
+        when(reqContext.getDeducedCc()).thenReturn("US");
+        when(reqContext.getCustId()).thenReturn(123L);
+        when(reqContext.getBlockData()).thenReturn(cbm);
+        when(cbm.getRegionid()).thenReturn("5");
+        when(outData.getRegionId()).thenReturn(5);
+        when(reqContext.isNpacSupported()).thenReturn(true);
+        when(myClassUnderTest.isEtnoDipRequired(custProf, reqContext)).thenReturn(true);
+
+        myClassUnderTest.checkRegionAccess(reqContext, outData);
+
+        verify(reqContext).setRegionAccess(true);
+    }
+
+    @Test(expectedExceptions = InvalidTnLengthException.class)
+    public void testProcessTollFreeNumber_InvalidTnLength_MinLength() throws Exception {
+        String searchTn = "8001234567";
+        long custId = 123L;
+        String countryCode = "US";
+        int tollFreeNumberLength = 10;
+
+        when(reqContext.getSearchTn()).thenReturn(searchTn);
+        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
+        when(reqContext.getDeducedCustomer()).thenReturn(custProf);
+        when(custProf.getTollFreeFlag()).thenReturn("y");
+        when(appConfig.getTollFreeNumberLength()).thenReturn(tollFreeNumberLength);
+        when(reqContext.getTnLength()).thenReturn(9);
+
+        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
+    }
+
+    @Test
+    public void testProcessTollFreeNumber_ValidTnLength() throws Exception {
+        String searchTn = "8001234567";
+        long custId = 123L;
+        String countryCode = "US";
+        int tollFreeNumberLength = 10;
+
+        when(reqContext.getSearchTn()).thenReturn(searchTn);
+        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
+        when(reqContext.getDeducedCustomer()).thenReturn(custProf);
+        when(custProf.getTollFreeFlag()).thenReturn("y");
+        when(appConfig.getTollFreeNumberLength()).thenReturn(tollFreeNumberLength);
+        when(reqContext.getTnLength()).thenReturn(10);
+
+        getDataEtnoIn expectedInput = new getDataEtnoIn(custId, countryCode, searchTn, false, "-1", false, false, false, true);
+
+        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
+
+        verify(myClassUnderTest).callGetDataEtno(eq(reqContext), eq(expectedInput));
+    }
+
+    @Test(expectedExceptions = TollFreeErrorException.class)
+    public void testProcessTollFreeNumber_TollFreeErrorException() throws Exception {
+        String searchTn = "9001234567";
+        long custId = 123L;
+        String countryCode = "US";
+
+        when(reqContext.getSearchTn()).thenReturn(searchTn);
+        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
+
+        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
+    }
+}
+-----------------------------
 
 
 

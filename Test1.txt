@@ -1,3 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+
+        <Properties>
+                <Property name="basePath">/opt/sipix/gui/logs</Property>
+        </Properties>
+
+
+        <Appenders>
+          <RollingFile name="sipixLog" fileName="${basePath}/sipix_gui.log"
+            filePattern="${basePath}/sipix_gui.log.%i" >
+            <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss'Z'}{GMT} %X{HOSTNAME} SIPIX_GUI %5p %F:%L[%X{PID}]: %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB" />
+            </Policies>
+              <FilePermissions>rw-r--r--</FilePermissions>
+            <DefaultRolloverStrategy max="10"/>
+      </RollingFile>
+
+          <RollingFile name="generalLog" fileName="${basePath}/sipix_gui_general.log"
+            filePattern="${basePath}/sipix_gui_general.log.%i" >
+            <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss'Z'}{GMT} %X{HOSTNAME} SIPIX_GUI %5p %F:%L[%X{PID}]: %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB" />
+            </Policies>
+              <FilePermissions>rw-r--r--</FilePermissions>
+            <DefaultRolloverStrategy max="10"/>
+      </RollingFile>
+        </Appenders>
+
+        <Loggers>
+          <Logger name="com.neu" additivity="false" level="debug">
+            <AppenderRef ref="sipixLog" />
+       </Logger>
+
+       <Root level="info">
+            <AppenderRef ref="generalLog"/>
+       </Root>
+        </Loggers>
+
+</Configuration>
+
+
+
+
 Week - 2:
 public void verifyExtCc1CountryAccess(ReqContext reqContext){
 		String countryCode = reqContext.getDeducedCc();

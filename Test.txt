@@ -29,6 +29,30 @@ public void checkRegionAccess(ReqContext reqContext,OutNrsGetData outData) throw
 		}
 	}
 
+public boolean isEtnoDipRequired(CustProf custProf, ReqContext reqContext){
+        String Flag_1 = custProf.getEtnoDataNeeded();
+		Boolean Flag_2 = reqContext.isNpacSupported();
+		Boolean Flag_3 = reqContext.isLnpEnabled();
+
+		Boolean result=  Flag_1 != null && Flag_1.equalsIgnoreCase("y") && Flag_2 && Flag_3;
+		return result;
+
+
+
+private boolean isNpacAvailableForRegion(String countryCode, int custId ,int regionId){
+		CustCnRegion  custCnRegion = cacheContainer.retrieveValue(Constants.CUST_CN_REGION,custId+":"+countryCode+":"+"-1");
+		if(custCnRegion != null) {
+			return false;
+		}
+		else {
+			custCnRegion = cacheContainer.retrieveValue(Constants.CUST_CN_REGION,custId+":"+countryCode+":"+regionId);
+            return custCnRegion != null;
+		}
+    }
+
+
+
+
 
 
 public getDataEtnoOut  processTollFreeNumber(ReqContext reqContext,long custId, String countryCode) throws InvalidTnLengthException, TollFreeErrorException, SQLException {

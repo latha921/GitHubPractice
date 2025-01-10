@@ -78,6 +78,22 @@ public getDataEtnoOut  processTollFreeNumber(ReqContext reqContext,long custId, 
 		return null;
 	}
 
+
+	public getDataEtnoOut callGetDataEtno(ReqContext reqContext, getDataEtnoIn inData) throws SQLException {
+		getDataEtnoOut outData = new getDataEtnoOut();
+		LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
+		sqlProc.callGetDataEtno(inData,outData);
+		LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
+		long diff = ChronoUnit.MICROS.between(startTime, endTime);
+		reqContext.setSqlExecTime(diff);
+		if(outData.isWhitelisted()){
+			if(!validateWhitelistedData(outData)){
+				outData.setWhitelisted(false);
+			}
+		}
+		return outData;
+	}
+
 ----------
 import org.mockito.Mock;
 import org.mockito.InjectMocks;

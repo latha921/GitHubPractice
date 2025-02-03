@@ -1,268 +1,132 @@
-Week - 3
+C++ CDR:
+case 1 :
+1738570135|899398|1738570135|974553|10680|10.193.221.21|447775563900|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|246|-1|10000|35|0|52050|2|CC=44 TN=7775563900 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701358993981546|002|-1|1||||||{\"queried_tn\"\:\"447775563900\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570135|901874|1738570135|974087||EIE||06900e60-766b-4296-823a-d51ff7f4e9c5|||Y||52050|-1|235|26|31923|-1|234|15
 
 
-public void checkRegionAccess(ReqContext reqContext,OutNrsGetData outData) throws NoRegionAccessException {
-		String countryCode = reqContext.getDeducedCc();
-		Long custId = reqContext.getCustId();
-		CBM cbm = reqContext.getBlockData();
-		CustProf custProf = reqContext.getDeducedCustomer();
-		boolean doEtnoDip = isEtnoDipRequired(custProf, reqContext);
-		int blkRegionId  = Integer.parseInt(cbm.getRegionid());
-		int dbRegionId = outData.getRegionId();
-		boolean isCanadianTn  = dbRegionId == 7 ||(dbRegionId < 0  && blkRegionId == 7);
-		if(reqContext.isType1Override()) {
-			reqContext.setRegionAccess(true);
-		} else if(reqContext.isNpacSupported() ){
-			if((dbRegionId >=0 && !isNpacAvailableForRegion(countryCode,custId.intValue(),dbRegionId) )||
-					(dbRegionId <  0 && !isNpacAvailableForRegion(countryCode,custId.intValue(),blkRegionId))){
-				if(!doEtnoDip || isCanadianTn){
-					reqContext.setQstat(Qstat.Q_STAT_NO_REGION_ACCESS);
-					reqContext.setNpdi(false);
-					throw new NoRegionAccessException("No region available");
-				}
-				reqContext.setRegionAccess(false);
-
-			}
-			else{
-				reqContext.setRegionAccess(true);
-			}
-		}
-	}
-
-public boolean isEtnoDipRequired(CustProf custProf, ReqContext reqContext){
-        String Flag_1 = custProf.getEtnoDataNeeded();
-		Boolean Flag_2 = reqContext.isNpacSupported();
-		Boolean Flag_3 = reqContext.isLnpEnabled();
-
-		Boolean result=  Flag_1 != null && Flag_1.equalsIgnoreCase("y") && Flag_2 && Flag_3;
-		return result;
+Case 2:
+1738570136|133438|1738570136|135315|10680|10.193.221.21|44777556390|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|247|-1|10680|35|0|-1|0||0|dc15-enum-qaR17385701361334380147|104|-1|0||||||{\"queried_tn\"\:\"44777556390\"\,\"result\"\:{\"q_stat\"\:\"104\"\,\"description\"\:\"Queried TN length is shorter than the minimum TN length allowed for the block in the queried country\"}}||32|4|0|0|0|1||-1|0|0|0|0||GGNP||4b40752b-2d0f-4798-a847-27fa986e1e7d|||Y||-1|-1|||-1|-1||
 
 
+Case 3:
+1738570136|268313|1738570136|270470|10680|10.193.221.21|4477755639022|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|248|-1|10680|35|0|-1|0||0|dc15-enum-qaR17385701362683131048|105|-1|0||||||{\"queried_tn\"\:\"4477755639022\"\,\"result\"\:{\"q_stat\"\:\"105\"\,\"description\"\:\"Queried TN length is longer than the maximum TN length allowed for the block in the queried country\"}}||32|4|0|0|0|1||-1|0|0|0|0||GGNP||fb1d8207-54c9-45bf-9aa2-ec3a6d1da93f|||Y||-1|-1|||-1|-1||
 
-private boolean isNpacAvailableForRegion(String countryCode, int custId ,int regionId){
-		CustCnRegion  custCnRegion = cacheContainer.retrieveValue(Constants.CUST_CN_REGION,custId+":"+countryCode+":"+"-1");
-		if(custCnRegion != null) {
-			return false;
-		}
-		else {
-			custCnRegion = cacheContainer.retrieveValue(Constants.CUST_CN_REGION,custId+":"+countryCode+":"+regionId);
-            return custCnRegion != null;
-		}
-    }
+Case 4:
+1738570136|310045|1738570136|382135|10680|10.193.221.21|447775563903|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|249|-1|10000|35|0|52050|2|CC=44 TN=7775563903 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701363100451449|002|-1|1||||||{\"queried_tn\"\:\"447775563903\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570136|312440|1738570136|381652||EIE||8cf1e0a3-c5e2-40ae-bd51-73477d4201e6|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 5:
+1738570136|526161|1738570136|597201|10680|10.193.221.21|447775563904|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|250|-1|10000|35|0|52050|2|CC=44 TN=7775563904 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701365261610950|002|-1|1||||||{\"queried_tn\"\:\"447775563904\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570136|528824|1738570136|596755||EIE||18297a1b-c475-4c70-ba38-272d6260562a|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 6:
+
+1738570136|736388|1738570136|808198|10680|10.193.221.21|447775563905|1|2||300|2|dc15-enum-qa-pf-qi01|1|200|42|251|-1|10000|35|0|52050|2|CC=44 TN=7775563905 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701367363882251|002|-1|1||||||{\"queried_tn\"\:\"447775563905\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570136|739300|1738570136|807771||EIE||730ed890-4a43-419a-b422-2b6c94fc3187|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 7:
+
+1738570136|949983|1738570137|21264|10680|10.193.221.21|447775563906|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|252|-1|10000|35|0|52050|2|CC=44 TN=7775563906 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701369499831952|002|-1|1||||||{\"queried_tn\"\:\"447775563906\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570136|952439|1738570137|20798||EIE||2fd20182-b06f-45f4-a6cc-7809fdbb58fa|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 8:
+1738570137|157504|1738570137|228232|10680|10.193.221.21|447775563939|1|2||300|2|dc15-enum-qa-pf-qi01|1|200|42|253|-1|10000|35|0|52050|2|CC=44 TN=7775563939 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701371575041553|002|-1|1||||||{\"queried_tn\"\:\"447775563939\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570137|160242|1738570137|227804||EIE||21ec1b81-a34f-487a-adfe-f3d1a3b21e3e|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 9:
+1738570137|364834|1738570137|436292|10680|10.193.221.21|447775563940|1|2||300|2|dc15-enum-qa-pf-qi01|1|200|42|254|-1|10000|35|0|52050|2|CC=44 TN=7775563940 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=35261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701373648341054|002|-1|1||||||{\"queried_tn\"\:\"447775563940\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570137|367659|1738570137|435835||EIE||b3d0c016-a9c4-458f-aae0-99eb13d759d7|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 10:
+1738570137|566201|1738570137|638029|10680|10.193.221.21|447775563941|1|2||300|2|dc15-enum-qa-pf-qi01|1|200|42|255|-1|10000|35|0|52050|2|CC=44 TN=7775563941 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=2352617192817177 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701375662010255|002|-1|1||||||{\"queried_tn\"\:\"447775563941\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570137|569004|1738570137|637493||EIE||e0d5aa49-229d-4a1b-91a2-bbb5256ca946|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 11:
+1738570137|775776|1738570137|847494|10680|10.193.221.21|447775563942|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|256|-1|10000|35|0|52050|2|CC=44 TN=7775563942 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701377757760856|002|-1|1||||||{\"queried_tn\"\:\"447775563942\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570137|778500|1738570137|846990||EIE||11608f8d-5296-4795-af3c-7da245a5616f|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 12:
+1738570137|995194|1738570138|66241|10680|10.193.221.21|447775563945|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|257|-1|10000|35|0|52050|2|CC=44 TN=7775563945 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701379951941657|002|-1|1||||||{\"queried_tn\"\:\"447775563945\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570137|997853|1738570138|65805||EIE||6b57de89-126a-45e9-9b43-166665f85508|||Y||52050|-1|235|26|31923|-1|234|15
 
 
 
+Case 13:
+1738570138|190993|1738570138|261624|10680|10.193.221.21|447775563947|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|258|-1|10000|35|0|52050|2|CC=44 TN=7775563947 STATUS=0 CUSTID=10680 MCC=235 MNC=261 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701381909930958|002|-1|1||||||{\"queried_tn\"\:\"447775563947\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570138|193628|1738570138|261149||EIE||16ec3741-daf7-4491-a718-fcce04dec9cc|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 14:
+1738570138|397890|1738570138|468241|10680|10.193.221.21|447775563948|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|259|-1|10000|35|0|52050|2|CC=44 TN=7775563948 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701383978900259|002|-1|1||||||{\"queried_tn\"\:\"447775563948\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570138|400293|1738570138|467817||EIE||ce11302a-6870-424c-8e40-cc1061229036|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 15:
+1738570138|599573|1738570138|670303|10680|10.193.221.21|447775563949|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|260|-1|10000|35|0|52050|2|CC=44 TN=7775563949 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701385995732460|002|-1|1||||||{\"queried_tn\"\:\"447775563949\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570138|601924|1738570138|669876||EIE||c32725e4-370f-4871-b812-20b82c7e3343|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 16:
+
+1738570138|801884|1738570138|874176|10680|10.193.221.21|447775563950|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|261|-1|10000|35|0|52050|2|CC=44 TN=7775563950 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701388018840461|002|-1|1||||||{\"queried_tn\"\:\"447775563950\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570138|804719|1738570138|873740||EIE||68d0dcfb-54c9-4516-8f4d-275d9da1f435|||Y||52050|-1|235|26|31923|-1|234|15
+
+
+Case 17 :
+
+1738570139|1714|1738570139|72590|10680|10.193.221.21|447775563951|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|262|-1|10000|35|0|52050|2|CC=44 TN=7775563951 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701390017140162|002|-1|1||||||{\"queried_tn\"\:\"447775563951\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570139|4440|1738570139|72136||EIE||d30bf9a3-0051-422c-9f13-470fa2514ccc|||Y||52050|-1|235|26|31923|-1|234|15
 
 
 
-public getDataEtnoOut  processTollFreeNumber(ReqContext reqContext,long custId, String countryCode) throws InvalidTnLengthException, TollFreeErrorException, SQLException {
-		String searchTn = reqContext.getSearchTn();
-		String npa = searchTn.substring(0,3);
-		Set<String> allowed8xxSet = appConfig.getAllowed8xxSet();
-		if(allowed8xxSet != null && allowed8xxSet.contains(npa)) {
-			CustProf custProf = reqContext.getDeducedCustomer();
-			if (custProf != null && custProf.getTollFreeFlag().equalsIgnoreCase("y")) {
-				int tollFreeNumberLength = appConfig.getTollFreeNumberLength();
-				int tnLength = reqContext.getTnLength();
-				if (tnLength < tollFreeNumberLength) {
-					reqContext.setQstat(Qstat.Q_STAT_TN_INVALID_MIN_LENGTH);
-					throw new InvalidTnLengthException("Invalid toll free tn length ");
-				} else if (tnLength > tollFreeNumberLength) {
-					reqContext.setQstat(Qstat.Q_STAT_TN_INVALID_MAX_LENGTH);
-					throw new InvalidTnLengthException("Invalid tolld free tn length");
-				}
-				getDataEtnoIn inData = new getDataEtnoIn(custId,countryCode,searchTn,false,"-1",false,false,false,true);
-				return callGetDataEtno(reqContext,inData);
-			}
-		}
-		return null;
-	}
+Case 18:
+
+1738570139|195207|1738570139|265748|10680|10.193.221.21|447775563952|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|263|-1|10000|35|0|52050|2|CC=44 TN=7775563952 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701391952070163|002|-1|1||||||{\"queried_tn\"\:\"447775563952\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570139|197727|1738570139|265283||EIE||40c9225f-3d6b-4000-8c1e-ee4c4e9cc383|||Y||52050|-1|235|26|31923|-1|234|15
 
 
-	public getDataEtnoOut callGetDataEtno(ReqContext reqContext, getDataEtnoIn inData) throws SQLException {
-		getDataEtnoOut outData = new getDataEtnoOut();
-		LocalDateTime startTime = LocalDateTime.now(ZoneOffset.UTC);
-		sqlProc.callGetDataEtno(inData,outData);
-		LocalDateTime endTime = LocalDateTime.now(ZoneOffset.UTC);
-		long diff = ChronoUnit.MICROS.between(startTime, endTime);
-		reqContext.setSqlExecTime(diff);
-		if(outData.isWhitelisted()){
-			if(!validateWhitelistedData(outData)){
-				outData.setWhitelisted(false);
-			}
-		}
-		return outData;
-	}
+Case 19:
+1738570139|389562|1738570139|462738|10680|10.193.221.21|447775563953|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|264|-1|10000|35|0|52050|2|CC=44 TN=7775563953 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701393895621064|002|-1|1||||||{\"queried_tn\"\:\"447775563953\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570139|392466|1738570139|462274||EIE||ff1786af-b914-4e0a-b045-56e2159641bf|||Y||52050|-1|235|26|31923|-1|234|15
 
-----------
-import org.mockito.Mock;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
-import java.sql.SQLException;
+Case 20:
 
-import static org.mockito.Mockito.*;
+1738570139|591990|1738570139|663283|10680|10.193.221.21|447775563954|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|265|-1|10000|35|0|52050|2|CC=44 TN=7775563954 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701395919900565|002|-1|1||||||{\"queried_tn\"\:\"447775563954\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570139|594533|1738570139|662741||EIE||437e746a-f8ea-4d22-be74-06022dab730f|||Y||52050|-1|235|26|31923|-1|234|15
 
-public class AccessVerificationTest {
+Case 21:
+1738570140|6398|1738570140|77660|10680|10.193.221.21|447775563955|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|266|-1|10000|35|0|52050|2|CC=44 TN=7775563955 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701400063982066|002|-1|1||||||{\"queried_tn\"\:\"447775563955\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570140|8968|1738570140|77209||EIE||9555cfbb-4045-4170-9718-e06144afef17|||Y||52050|-1|235|26|31923|-1|234|15
 
-    @Mock
-    private ReqContext reqContext;
 
-    @Mock
-    private OutNrsGetData outData;
+Case 22:
+1738570140|273642|1738570140|345497|10680|10.193.221.21|447775563956|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|267|-1|10000|35|0|52050|2|CC=44 TN=7775563956 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701402736421467|002|-1|1||||||{\"queried_tn\"\:\"447775563956\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570140|276503|1738570140|344940||EIE||bf1b3078-8036-44d2-9c87-553b65e43136|||Y||52050|-1|235|26|31923|-1|234|15
 
-    @Mock
-    private CBM cbm;
 
-    @Mock
-    private CustProf custProf;
+Case 23:
+1738570140|584485|1738570140|655648|10680|10.193.221.21|447775563957|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|268|-1|10000|35|0|52050|2|CC=44 TN=7775563957 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701405844852268|002|-1|1||||||{\"queried_tn\"\:\"447775563957\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570140|586774|1738570140|655115||EIE||7f1a4c5b-3359-4193-b795-a69543c1fc64|||Y||52050|-1|235|26|31923|-1|234|15
 
-    @Mock
-    private AppConfig appConfig;
+Case 24:
+1738570140|912628|1738570140|985305|10680|10.193.221.21|447775563958|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|269|-1|10000|35|0|52050|2|CC=44 TN=7775563958 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=235261719281717 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701409126280169|002|-1|1||||||{\"queried_tn\"\:\"447775563958\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570140|915196|1738570140|984823||EIE||53a4a84e-f877-4113-8a20-4aded22a4aad|||Y||52050|-1|235|26|31923|-1|234|15
 
-    @InjectMocks
-    private MyClassUnderTest myClassUnderTest;
+Case 25:
+1738570141|247782|1738570141|319227|10680|10.193.221.21|447775563775|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|270|-1|10000|35|0|52050|2|CC=44 TN=7775563775 STATUS=0 CUSTID=10680 MCC=235 MNC=26 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701412477821670|002|-1|1||||||{\"queried_tn\"\:\"447775563775\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570141|250182|1738570141|318804||EIE||d97cce1c-603b-41e9-930b-57ebb4255148|||Y||52050|-1|235|26|31923|-1|234|15
 
-    @BeforeMethod
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
 
-    @Test(expectedExceptions = NoRegionAccessException.class)
-    public void testCheckRegionAccess_NoRegionAccessException() throws NoRegionAccessException {
-        when(reqContext.getDeducedCc()).thenReturn("US");
-        when(reqContext.getCustId()).thenReturn(123L);
-        when(reqContext.getBlockData()).thenReturn(cbm);
-        when(cbm.getRegionid()).thenReturn("7");
-        when(outData.getRegionId()).thenReturn(-1);
-        when(reqContext.isNpacSupported()).thenReturn(true);
-        when(myClassUnderTest.isEtnoDipRequired(custProf, reqContext)).thenReturn(false);
+Case 26:
+1738570141|573800|1738570141|648161|10680|10.193.221.21|447775563779|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|271|-1|10000|35|0|60488|2|CC=44 TN=7775563779 STATUS=0 CUSTID=10680 MCC=234 MNC=25 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701415738000371|002|-1|1||||||{\"queried_tn\"\:\"447775563779\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"60488\"\,\"mcc\"\:\"234\"\,\"mnc\"\:\"25\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570141|576514|1738570141|645020||EIE||42df04a6-d40d-44c4-9486-4f5dd1c20eb4|||Y||60488|-1|234|25|31923|-1|234|15
 
-        myClassUnderTest.checkRegionAccess(reqContext, outData);
 
-        verify(reqContext).setQstat(Qstat.Q_STAT_NO_REGION_ACCESS);
-        verify(reqContext).setNpdi(false);
-    }
+Case 27:
+1738570141|905201|1738570141|976504|10680|10.193.221.21|447775563781|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|272|-1|10000|35|0|60488|2|CC=44 TN=7775563781 STATUS=0 CUSTID=10680 MCC=234 MNC=25 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701419052011472|002|-1|1||||||{\"queried_tn\"\:\"447775563781\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"60488\"\,\"mcc\"\:\"234\"\,\"mnc\"\:\"25\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570141|907625|1738570141|975933||EIE||4eed21ba-da9b-4cc0-94de-92b281eec628|||Y||60488|-1|234|25|31923|-1|234|15
 
-    @Test
-    public void testCheckRegionAccess_RegionAccessGranted() throws NoRegionAccessException {
-        when(reqContext.getDeducedCc()).thenReturn("US");
-        when(reqContext.getCustId()).thenReturn(123L);
-        when(reqContext.getBlockData()).thenReturn(cbm);
-        when(cbm.getRegionid()).thenReturn("5");
-        when(outData.getRegionId()).thenReturn(5);
-        when(reqContext.isNpacSupported()).thenReturn(true);
-        when(myClassUnderTest.isEtnoDipRequired(custProf, reqContext)).thenReturn(true);
 
-        myClassUnderTest.checkRegionAccess(reqContext, outData);
+Case 28:
+1738570142|246897|1738570142|318618|10680|10.193.221.21|447775563784|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|273|-1|10000|35|0|60488|2|CC=44 TN=7775563784 STATUS=0 CUSTID=10680 MCC=234 MNC=25 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701422468972073|002|-1|1||||||{\"queried_tn\"\:\"447775563784\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"60488\"\,\"mcc\"\:\"234\"\,\"mnc\"\:\"25\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570142|249164|1738570142|318177||EIE||da687b2f-8933-46ed-9a00-026414254a40|||Y||60488|-1|234|25|31923|-1|234|15
 
-        verify(reqContext).setRegionAccess(true);
-    }
 
-    @Test(expectedExceptions = InvalidTnLengthException.class)
-    public void testProcessTollFreeNumber_InvalidTnLength_MinLength() throws Exception {
-        String searchTn = "8001234567";
-        long custId = 123L;
-        String countryCode = "US";
-        int tollFreeNumberLength = 10;
-
-        when(reqContext.getSearchTn()).thenReturn(searchTn);
-        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
-        when(reqContext.getDeducedCustomer()).thenReturn(custProf);
-        when(custProf.getTollFreeFlag()).thenReturn("y");
-        when(appConfig.getTollFreeNumberLength()).thenReturn(tollFreeNumberLength);
-        when(reqContext.getTnLength()).thenReturn(9);
-
-        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
-    }
-
-    @Test
-    public void testProcessTollFreeNumber_ValidTnLength() throws Exception {
-        String searchTn = "8001234567";
-        long custId = 123L;
-        String countryCode = "US";
-        int tollFreeNumberLength = 10;
-
-        when(reqContext.getSearchTn()).thenReturn(searchTn);
-        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
-        when(reqContext.getDeducedCustomer()).thenReturn(custProf);
-        when(custProf.getTollFreeFlag()).thenReturn("y");
-        when(appConfig.getTollFreeNumberLength()).thenReturn(tollFreeNumberLength);
-        when(reqContext.getTnLength()).thenReturn(10);
-
-        getDataEtnoIn expectedInput = new getDataEtnoIn(custId, countryCode, searchTn, false, "-1", false, false, false, true);
-
-        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
-
-        verify(myClassUnderTest).callGetDataEtno(eq(reqContext), eq(expectedInput));
-    }
-
-    @Test(expectedExceptions = TollFreeErrorException.class)
-    public void testProcessTollFreeNumber_TollFreeErrorException() throws Exception {
-        String searchTn = "9001234567";
-        long custId = 123L;
-        String countryCode = "US";
-
-        when(reqContext.getSearchTn()).thenReturn(searchTn);
-        when(appConfig.getAllowed8xxSet()).thenReturn(Set.of("800"));
-
-        myClassUnderTest.processTollFreeNumber(reqContext, custId, countryCode);
-    }
-}
------------------------------
+Case 29:
+1738570142|504894|1738570142|583806|10680|10.193.221.21|447775563782|1|2||300|8|dc15-enum-qa-pf-qi01|1|200|42|274|-1|10000|35|0|60488|2|CC=44 TN=7775563782 STATUS=0 CUSTID=10680 MCC=234 MNC=25 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701425048941074|002|-1|1||||||{\"queried_tn\"\:\"447775563782\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"60488\"\,\"mcc\"\:\"234\"\,\"mnc\"\:\"25\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570142|514574|1738570142|583337||EIE||0430ee13-4a7b-497e-b968-9638a10cd795|||Y||60488|-1|234|25|31923|-1|234|15
 
 
 
-public void hasCountryAccess(ReqContext reqContext){
-		if(reqContext.isOnboardData()){
-			if(!reqContext.isLnpEnabled()){
-					reqContext.setQstat(Qstat.Q_STAT_NO_INT_COUNTRY_ACCESS);
-			}
-		}
-		else {
-			if(reqContext.isExtCtryAllowed()){
-				reqContext.setQstat(Qstat.Q_STAT_NO_EXT_COUNTRY_ACCESS);
-			}
-		}
-	}
+Case 30:
+1738570142|777995|1738570142|860468|10680|10.193.221.21|447775563783|1|2||300|12|dc15-enum-qa-pf-qi01|1|200|42|275|-1|10000|35|0|60488|2|CC=44 TN=7775563783 STATUS=0 CUSTID=10680 MCC=234 MNC=25 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701427779951075|002|-1|1||||||{\"queried_tn\"\:\"447775563783\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"60488\"\,\"mcc\"\:\"234\"\,\"mnc\"\:\"25\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570142|790876|1738570142|860006||EIE||4372a62c-c3be-4ddf-bef4-dba5bb83603e|||Y||60488|-1|234|25|31923|-1|234|15
 
-	public void checkCc1Portability(ReqContext reqContext){
-		CBM cbm = reqContext.getBlockData();
-		if(cbm!=null && cbm.getNpEnabled() != null &&  !cbm.getNpEnabled().equalsIgnoreCase("y")){
-			if(!checkCc1NpEnabled(reqContext)){
-				reqContext.setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
-				reqContext.setNpdi(false);
-			}
-			else{
-				reqContext.setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
-			}
-		}
-	}
 
-	public void checkRowPortability(ReqContext reqContext){
-		CBM cbm = reqContext.getBlockData();
-		if(cbm!=null && cbm.getNpEnabled() != null &&  !cbm.getNpEnabled().equalsIgnoreCase("y")){
-			if(!checkRowNpEnabled(reqContext)){
-				reqContext.setQstat(Qstat.Q_STAT_NP_CORRECTION_NOT_SUPPORTED);
-				reqContext.setNpdi(false);
-			}
-			else{
-				reqContext.setQstat(Qstat.Q_STAT_NPDI_BLK_NOT_PORTABLE_COUNTRY_PORTABLE);
-			}
-		}
-	}
+Case 31:
+1738570142|983651|1738570143|54535|10680|10.193.221.21|447775563825|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|276|-1|10000|35|0|52050|2|CC=44 TN=7775563825 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=23526100000000078900 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701429836511176|002|-1|1||||||{\"queried_tn\"\:\"447775563825\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570142|986527|1738570143|54080||EIE||a77be751-d5a0-42a4-a705-6e4c7f528c99|||Y||52050|-1|235|26|31923|-1|234|15
 
-	public boolean checkCc1NpEnabled(ReqContext reqContext) {
-		String countryCode = reqContext.getDeducedCc();
-		String searchTn  = reqContext.getTnToSearch();
-		String npa = searchTn.substring(0,3);
-		String searchKey = countryCode+":"+npa;
-		Cc1Country cc1Country  = cacheContainer.retrieveValue(Constants.CC1_COUNTRY,searchKey);
-		if(cc1Country != null ){
-			String npEnable = cc1Country.getNpEnabled();
-			return npEnable.equalsIgnoreCase("y");
-		}
-		return false;
-	}
+
+Case 32:
+1738570143|176853|1738570143|247857|10680|10.193.221.21|447775563826|1|2||300|1|dc15-enum-qa-pf-qi01|1|200|42|277|-1|10000|35|0|52050|2|CC=44 TN=7775563826 STATUS=0 CUSTID=10680 MCC=235 MNC=26 IMSI=0111110000000000000 VINT=stoumarine_http_qe_client01 GSMSTATUS=0|0|dc15-enum-qaR17385701431768531177|002|-1|1||||||{\"queried_tn\"\:\"447775563826\"\,\"result\"\:{\"npdi\"\:\"true\"\,\"spn\"\:\"52050\"\,\"mcc\"\:\"235\"\,\"mnc\"\:\"26\"\,\"wless\"\:\"y\"\,\"info_src\"\:\"REMOTE\"\,\"q_stat\"\:\"002\"\,\"description\"\:\"Port-corrected response\: TN ported\"}}||311|4|1|0|3200|2||-1|1738570143|179186|1738570143|247254||EIE||f109211c-6229-4238-9a5b-e6dc8bd217c3|||Y||52050|-1|235|26|31923|-1|234|15

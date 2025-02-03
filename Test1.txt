@@ -1,27 +1,134 @@
-Dig Query response : 
-[lmh@dc15-enum-qa-pf-qi01 qi]$ /home/nshast/dig @dc15-enum-qa-pf-qi01.neustar.net -p7000 $(echo 919686120396| rev | sed 's/\(.\)/\1./g')14873.e164enum.net ANY +tries=1 +notcp
+Java CDR:
+Case 1: 
 
-; <<>> DiG 9.10.8rc2 <<>> @dc15-enum-qa-pf-qi01.neustar.net -p7000 6.9.3.0.2.1.6.8.6.9.1.9.14873.e164enum.net ANY +tries=1 +notcp
-; (1 server found)
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 64258
-;; flags: qr aa rd ad; QUERY: 1, ANSWER: 1, AUTHORITY: 2, ADDITIONAL: 1
-;; WARNING: recursion requested but not available
+1738570135|993773|1738570136|112206|10680|10.193.221.21|447775563900|1|2|/query/pf/447775563900|300|10|dc15-enum-qa-pf-qi01.neustar.net|1|200||3|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-4296c984-4c87-4547-810b-adb92118598b|002|-1|0||||||{\"queried_tn\":\"447775563900\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570136|7891|1738570136|110235||null||4296c984-4c87-4547-810b-adb92118598b|||y|
 
-;; OPT PSEUDOSECTION:
-; EDNS: version: 0, flags:; udp: 5120
-;; QUESTION SECTION:
-;6.9.3.0.2.1.6.8.6.9.1.9.e164enum.net. IN ANY
 
-;; ANSWER SECTION:
-6.9.3.0.2.1.6.8.6.9.1.9.e164enum.net. 0	IN NAPTR 10 50 "u" "E2U+pstn:tel" "!^(.*)$!tel:\\1;npdi;spn=64024;mcc=123;mnc=321;wless=y;name=Bharat Sanchar Nigam Ltd (BSNL) (CDMA);gnp_type_id=PAG;np_spn=14456;np_altspn=62271;voip=n;q_stat=002!" .
+Case 2 : 
 
-;; AUTHORITY SECTION:
-6.8.6.9.1.9.e164enum.net. 900	IN	NS	ns2.net.gprs.
-6.8.6.9.1.9.e164enum.net. 900	IN	NS	ns1.net.gprs.
+1738570136|244150|1738570136|247427|10680|10.193.221.21|44777556390|1|2|/query/pf/44777556390|300|0|dc15-enum-qa-pf-qi01.neustar.net|1|200||4|-1|10000|-1|-1|0|0||0|dc15-enum-qa-pf-qi01.neustar.net-d1dbf48d-5d56-4003-b2de-adb19b272655|104|-1|0||||||{\"queried_tn\":\"44777556390\",\"result\":{\"q_stat\":\"104\",\"description\":\"Queried TN length is shorter than the minimum TN length allowed for the block in the queried country\"}}||2097184|4|1|0|0|0||-1|0|0|0|0||null||d1dbf48d-5d56-4003-b2de-adb19b272655|||null|
 
-;; Query time: 10 msec
-;; SERVER: 10.193.221.21#7000(10.193.221.21)
-;; WHEN: Tue Jan 28 05:15:51 UTC 2025
-;; MSG SIZE  rcvd: 311
+
+Case 3 : 
+
+1738570136|286598|1738570136|288452|10680|10.193.221.21|4477755639022|1|2|/query/pf/4477755639022|300|0|dc15-enum-qa-pf-qi01.neustar.net|1|200||5|-1|10000|-1|-1|0|0||0|dc15-enum-qa-pf-qi01.neustar.net-9e1b3573-2301-4907-89d6-b477f441881c|105|-1|0||||||{\"queried_tn\":\"4477755639022\",\"result\":{\"q_stat\":\"105\",\"description\":\"Queried TN length is longer than the maximum TN length allowed for the block in the queried country\"}}||2097184|4|1|0|0|0||-1|0|0|0|0||null||9e1b3573-2301-4907-89d6-b477f441881c|||null|
+
+
+Case 4 :
+1738570136|397683|1738570136|504838|10680|10.193.221.21|447775563903|1|2|/query/pf/447775563903|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||6|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-7f3aef7c-b82e-4ce5-9d87-303bf245b775|002|-1|0||||||{\"queried_tn\":\"447775563903\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570136|409907|1738570136|503077||null||7f3aef7c-b82e-4ce5-9d87-303bf245b775|||y|
+
+
+Case 5 :
+1738570136|613935|1738570136|718343|10680|10.193.221.21|447775563904|1|2|/query/pf/447775563904|300|9|dc15-enum-qa-pf-qi01.neustar.net|1|200||7|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-4254d912-8fa5-48ca-badd-2a3571cba3ab|002|-1|0||||||{\"queried_tn\":\"447775563904\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570136|629517|1738570136|715855||null||4254d912-8fa5-48ca-badd-2a3571cba3ab|||y|
+
+
+Case 6 :
+1738570136|826500|1738570136|929694|10680|10.193.221.21|447775563905|1|2|/query/pf/447775563905|300|9|dc15-enum-qa-pf-qi01.neustar.net|1|200||8|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-782b7a25-1551-4a7c-b628-195e756cc4dc|002|-1|0||||||{\"queried_tn\":\"447775563905\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570136|843447|1738570136|927520||null||782b7a25-1551-4a7c-b628-195e756cc4dc|||y|
+
+
+Case 7 :
+1738570137|37512|1738570137|139755|10680|10.193.221.21|447775563906|1|2|/query/pf/447775563906|300|9|dc15-enum-qa-pf-qi01.neustar.net|1|200||9|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-ee41e8ec-f812-4058-9619-071530c4632d|002|-1|0||||||{\"queried_tn\":\"447775563906\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570137|49717|1738570137|136966||null||ee41e8ec-f812-4058-9619-071530c4632d|||y|
+
+
+Case 8 :
+1738570137|243183|1738570137|347036|10680|10.193.221.21|447775563939|1|2|/query/pf/447775563939|300|12|dc15-enum-qa-pf-qi01.neustar.net|1|200||10|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-3602bd0f-1ddb-415c-ae98-879a5be8216e|002|-1|0||||||{\"queried_tn\":\"447775563939\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570137|258689|1738570137|345460||null||3602bd0f-1ddb-415c-ae98-879a5be8216e|||y|
+
+
+Case 9 :
+1738570137|451792|1738570137|548038|10680|10.193.221.21|447775563940|1|2|/query/pf/447775563940|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||11|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-f760c839-69c5-4e86-a52a-6bc0c83b51ba|002|-1|0||||||{\"queried_tn\":\"447775563940\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570137|462844|1738570137|546005||null||f760c839-69c5-4e86-a52a-6bc0c83b51ba|||y|
+
+
+Case 10 :
+1738570137|658060|1738570137|757864|10680|10.193.221.21|447775563941|1|2|/query/pf/447775563941|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||12|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-f7c712bf-3590-4bf8-8deb-2565a4994a27|002|-1|0||||||{\"queried_tn\":\"447775563941\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570137|667791|1738570137|756217||null||f7c712bf-3590-4bf8-8deb-2565a4994a27|||y|
+
+
+Case 11:
+1738570137|863172|1738570137|977547|10680|10.193.221.21|447775563942|1|2|/query/pf/447775563942|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||13|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-da543ce4-3664-485b-bb7a-bed3af3b4890|002|-1|0||||||{\"queried_tn\":\"447775563942\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570137|873990|1738570137|976019||null||da543ce4-3664-485b-bb7a-bed3af3b4890|||y|
+
+
+Case 12:
+1738570138|81878|1738570138|174220|10680|10.193.221.21|447775563945|1|2|/query/pf/447775563945|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||14|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-053065fb-35c9-477e-9a2c-724eec5d2bb5|002|-1|0||||||{\"queried_tn\":\"447775563945\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570138|92424|1738570138|172451||null||053065fb-35c9-477e-9a2c-724eec5d2bb5|||y|
+
+
+Case 13:
+1738570138|276450|1738570138|378728|10680|10.193.221.21|447775563947|1|2|/query/pf/447775563947|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||15|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-83622ff5-d1dd-45e0-88a4-6c2ce8ef5738|002|-1|0||||||{\"queried_tn\":\"447775563947\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570138|286668|1738570138|375900||null||83622ff5-d1dd-45e0-88a4-6c2ce8ef5738|||y|
+
+
+
+Case 14:
+
+1738570138|485505|1738570138|581034|10680|10.193.221.21|447775563948|1|2|/query/pf/447775563948|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||16|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-4a7d1370-10af-41b6-9729-0ad7af4725c4|002|-1|0||||||{\"queried_tn\":\"447775563948\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570138|495951|1738570138|578820||null||4a7d1370-10af-41b6-9729-0ad7af4725c4|||y|
+
+
+Case 15:
+1738570138|687046|1738570138|783863|10680|10.193.221.21|447775563949|1|2|/query/pf/447775563949|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||17|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-4974debe-316d-4bbb-a3d6-a00396819bf2|002|-1|0||||||{\"queried_tn\":\"447775563949\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570138|697887|1738570138|781103||null||4974debe-316d-4bbb-a3d6-a00396819bf2|||y|
+
+
+
+Case 16:
+1738570138|889229|1738570138|985677|10680|10.193.221.21|447775563950|1|2|/query/pf/447775563950|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||18|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-6ea105a6-2d8c-4081-a744-c9afd7615b5b|002|-1|0||||||{\"queried_tn\":\"447775563950\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570138|899794|1738570138|983994||null||6ea105a6-2d8c-4081-a744-c9afd7615b5b|||y|
+
+
+Case 17:
+1738570139|87138|1738570139|179331|10680|10.193.221.21|447775563951|1|2|/query/pf/447775563951|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||19|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-8252e0ad-6d72-4811-ae12-e2c5e48daea6|002|-1|0||||||{\"queried_tn\":\"447775563951\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570139|96840|1738570139|177243||null||8252e0ad-6d72-4811-ae12-e2c5e48daea6|||y|
+
+
+Case 18:
+1738570139|280773|1738570139|373679|10680|10.193.221.21|447775563952|1|2|/query/pf/447775563952|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||20|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-d3a5559f-0a1b-4a37-8454-52cb7405ecbb|002|-1|0||||||{\"queried_tn\":\"447775563952\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570139|290436|1738570139|372053||null||d3a5559f-0a1b-4a37-8454-52cb7405ecbb|||y|
+
+
+Case 19:
+1738570139|479682|1738570139|576255|10680|10.193.221.21|447775563953|1|2|/query/pf/447775563953|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||21|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-5e49f2e8-bc77-4b05-b6d2-18ac5cce2253|002|-1|0||||||{\"queried_tn\":\"447775563953\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570139|489350|1738570139|574810||null||5e49f2e8-bc77-4b05-b6d2-18ac5cce2253|||y|
+
+
+Case 20:
+1738570139|677886|1738570139|988842|10680|10.193.221.21|447775563954|1|2|/query/pf/447775563954|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||22|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-e776a26b-1340-4473-bd22-2ff1049eac90|002|-1|0||||||{\"queried_tn\":\"447775563954\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570139|687388|1738570139|987318||null||e776a26b-1340-4473-bd22-2ff1049eac90|||y|
+
+
+Case 21:
+1738570140|92883|1738570140|255826|10680|10.193.221.21|447775563955|1|2|/query/pf/447775563955|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||23|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-c4361627-a760-464a-ad99-da841a1aa9fc|002|-1|0||||||{\"queried_tn\":\"447775563955\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570140|102607|1738570140|253934||null||c4361627-a760-464a-ad99-da841a1aa9fc|||y|
+
+
+Case 22:
+1738570140|361624|1738570140|566831|10680|10.193.221.21|447775563956|1|2|/query/pf/447775563956|300|6|dc15-enum-qa-pf-qi01.neustar.net|1|200||24|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-8ee09150-1119-4abf-94c4-de1b3ccbad4a|002|-1|0||||||{\"queried_tn\":\"447775563956\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570140|370354|1738570140|564831||null||8ee09150-1119-4abf-94c4-de1b3ccbad4a|||y|
+
+Case 23:
+1738570140|673253|1738570140|897078|10680|10.193.221.21|447775563957|1|2|/query/pf/447775563957|300|6|dc15-enum-qa-pf-qi01.neustar.net|1|200||25|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-c2757abf-139d-4704-8033-e44e7eac6bab|002|-1|0||||||{\"queried_tn\":\"447775563957\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570140|682297|1738570140|895692||null||c2757abf-139d-4704-8033-e44e7eac6bab|||y|
+
+
+
+Case 24:
+1738570140|999797|1738570141|230857|10680|10.193.221.21|447775563958|1|2|/query/pf/447775563958|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||26|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-f2fd3d72-6eea-4bfb-a2b1-905fc9d30cc4|002|-1|0||||||{\"queried_tn\":\"447775563958\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570141|8891|1738570141|228854||null||f2fd3d72-6eea-4bfb-a2b1-905fc9d30cc4|||y|
+
+
+Case 25:
+1738570141|334555|1738570141|557121|10680|10.193.221.21|447775563775|1|2|/query/pf/447775563775|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||27|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-1b3d3850-445c-42e9-a05b-c7a5f04b8e24|002|-1|0||||||{\"queried_tn\":\"447775563775\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570141|343792|1738570141|555681||null||1b3d3850-445c-42e9-a05b-c7a5f04b8e24|||y|
+
+
+Case 26:
+1738570141|663020|1738570141|887884|10680|10.193.221.21|447775563779|1|2|/query/pf/447775563779|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||28|-1|10000|-1|-1|60488|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-7400c2a6-0bd9-497d-8119-d9f81dafd619|002|-1|0||||||{\"queried_tn\":\"447775563779\",\"result\":{\"npdi\":\"true\",\"spn\":\"60488\",\"mcc\":\"234\",\"mnc\":\"25\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570141|672176|1738570141|884873||null||7400c2a6-0bd9-497d-8119-d9f81dafd619|||y|
+
+
+Case 27:
+1738570141|992848|1738570142|230479|10680|10.193.221.21|447775563781|1|2|/query/pf/447775563781|300|8|dc15-enum-qa-pf-qi01.neustar.net|1|200||29|-1|10000|-1|-1|60488|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-7898f0f5-1c4a-4b13-ac58-81441c70b654|002|-1|0||||||{\"queried_tn\":\"447775563781\",\"result\":{\"npdi\":\"true\",\"spn\":\"60488\",\"mcc\":\"234\",\"mnc\":\"25\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570142|4332|1738570142|228999||null||7898f0f5-1c4a-4b13-ac58-81441c70b654|||y|
+
+
+Case 28:
+1738570142|334341|1738570142|488405|10680|10.193.221.21|447775563784|1|2|/query/pf/447775563784|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||30|-1|10000|-1|-1|60488|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-c40df94f-abf6-4f1d-98a6-d50f307821d9|002|-1|0||||||{\"queried_tn\":\"447775563784\",\"result\":{\"npdi\":\"true\",\"spn\":\"60488\",\"mcc\":\"234\",\"mnc\":\"25\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570142|344610|1738570142|486449||null||c40df94f-abf6-4f1d-98a6-d50f307821d9|||y|
+
+
+
+Case 29:
+1738570142|597962|1738570142|759756|10680|10.193.221.21|447775563782|1|2|/query/pf/447775563782|300|9|dc15-enum-qa-pf-qi01.neustar.net|1|200||31|-1|10000|-1|-1|60488|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-9c7ef0f2-50f9-4666-9a61-78f22f603d49|002|-1|0||||||{\"queried_tn\":\"447775563782\",\"result\":{\"npdi\":\"true\",\"spn\":\"60488\",\"mcc\":\"234\",\"mnc\":\"25\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570142|610670|1738570142|757771||null||9c7ef0f2-50f9-4666-9a61-78f22f603d49|||y|
+
+
+Case 30:
+1738570142|876132|1738570142|966966|10680|10.193.221.21|447775563783|1|2|/query/pf/447775563783|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||32|-1|10000|-1|-1|60488|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-3aa21df0-5b4f-4bd3-b019-829e4296ea6c|002|-1|0||||||{\"queried_tn\":\"447775563783\",\"result\":{\"npdi\":\"true\",\"spn\":\"60488\",\"mcc\":\"234\",\"mnc\":\"25\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570142|885444|1738570142|964993||null||3aa21df0-5b4f-4bd3-b019-829e4296ea6c|||y|
+
+
+Case 31:
+1738570143|68736|1738570143|160880|10680|10.193.221.21|447775563825|1|2|/query/pf/447775563825|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||33|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-793a6158-f438-4a8d-9053-59fb6a399f8f|002|-1|0||||||{\"queried_tn\":\"447775563825\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570143|77977|1738570143|159355||null||793a6158-f438-4a8d-9053-59fb6a399f8f|||y|
+
+
+Case 32:
+1738570143|261659|1738570143|352806|10680|10.193.221.21|447775563826|1|2|/query/pf/447775563826|300|7|dc15-enum-qa-pf-qi01.neustar.net|1|200||34|-1|10000|-1|-1|52050|0|0|0|dc15-enum-qa-pf-qi01.neustar.net-6444cab2-8761-437c-ae67-dc53270355e6|002|-1|0||||||{\"queried_tn\":\"447775563826\",\"result\":{\"npdi\":\"true\",\"spn\":\"52050\",\"mcc\":\"235\",\"mnc\":\"26\",\"wless\":\"y\",\"info_src\":\"EIE\",\"q_stat\":\"002\",\"description\":\"Port-corrected response: TN ported\"}}||2163647|4|1|0|3000|0||-1|1738570143|270987|1738570143|351043||null||6444cab2-8761-437c-ae67-dc53270355e6|||y|

@@ -1,57 +1,149 @@
-Mapping.csv
-1,Query Time in Seconds
-2,Query Time in Microsecond
-3,Response Time in Seconds
-4,Response Time in Microsec
-5,Querying Customer ID
-6,Querying Customer Peer IP
-7,TN
-8,Transport
-9,Protocol
-10,Query String
-11,Service
-12,SQL Exec Time
-13,Application Server Identifier
-14,Response Sent Flag
-15,Protocol Code
-16,Application Ret Code
-17,Sequence Number
-18,Agent Id
-19,Peer Customer ID
-20,Resource Record Type
-21,Answer or Authority indicator
-22,Carrier Id
-23,Tier Indicator
-24,SS7 Result
-25,SS7 Error
-26, Transaction Id
-27,Query Status Attribute
-28,RTI Error code
-29,Portablity Indicator
-30,Order
-31,Preference
-32,Flag
-33,Service
-34,Regex pattern
-35,Regex Value
-36,Replacement
-37,Industry data bitmap
-38,response type
-39,Does block Exist
-40,Whitelisted response
-41,External timeout
-42,Remote Override
-43,Reg Id
-44,Carrier Id
-45,EIE Request time in seconds
-46,EIE Request time in microseconds
-47,EIE Response time in seconds
-48,EIE Response time in microseconds
-49,Iso Alpha-3 Country Code
-50,Data Source
-51,CC
-52,Req ID
-53,Req TS
-54,Req TC
-55,Wless Flag
-56,Text Flag
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  external_labels:
+    monitor: 'codelab-monitor'
+
+rule_files:
+  - /etc/prometheus/alerting-rules-qi-*.yml
+  - /etc/prometheus/alerting-rules-cdr-*.yml
+  - /etc/prometheus/alerting-rules-nrs_*.yml
+  - /etc/prometheus/alerting-rules-nai-*.yml
+  - /etc/prometheus/alerting-rules-eie.yml
+  - /etc/prometheus/alerting-rules-sipix-*.yml
+  - /etc/prometheus/alerting-rules-gdignpapp0*.yml
+  - /etc/prometheus/alerting-rules-gdiusprocess.yml
+  - /etc/prometheus/alerting-rules-gdi-annexure.yml
+  - /etc/prometheus/billing_report.yml
+  - /etc/prometheus/sink.yml
+  - /etc/prometheus/source.yml
+  - /etc/prometheus/alerting-rules-gdigui-rest.yml
+  - /etc/prometheus/alerting-rules-gdi-gndm-reporting.yml
+  - /etc/prometheus/alerting-rules-gdi-gndm-initial-load.yml
+  - /etc/prometheus/alerting-rules-source_connector_1.yml
+  - /etc/prometheus/alerting-rules-mvno-NetNumber.yml
+  - /etc/prometheus/alerting-rules-gdi-sweden-npcomapp.yml
+  - /etc/prometheus/alerting-rules-bootstrap_1.yml
+  - /etc/prometheus/alerting-rules-sipix-lnpws.yml
+  - /etc/prometheus/alerting-rules-gdi-num-plan-search-export.yml
+  - /etc/prometheus/alerting-rules-gdi-somos-data-load.yml
+  - /etc/prometheus/alerting-rules-gdi-denmark-adapter.yml
+  - /etc/prometheus/alerting-rules-gdi_intl.yml
+  - /etc/prometheus/alerting-recording-rule.yml
+scrape_configs:
+  - job_name: 'prometheus'
+
+    scrape_interval: 5s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'envoy_qe'
+
+    scrape_interval: 5s
+
+    metrics_path: /stats/prometheus
+
+    static_configs:
+      - targets: ['dc15-enum-qa-pf-cdr01.neustar.net:9901']
+
+  - job_name: 'rest_qi'
+
+    scrape_interval: 5s
+
+    metrics_path: /metric
+
+    static_configs:
+      - targets: ['dc15-enum-qa-pf-qi01.neustar.net:9537']
+      - targets: ['dc15-enum-qa-pf-qi02.neustar.net:9537']
+
+
+  - job_name: 'mtail'
+
+    scrape_interval: 5s
+
+    metrics_path: /metrics
+
+    static_configs:
+      - targets:
+          - 'dc15-enum-dev-pf-qi01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-pf-qi01.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-pf-qi02.neustar.net:9106'
+        labels:
+          env: production
+          instance: 'dc15-enum-dev-pf-qi02.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-pf-cdr01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-pf-cdr01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-pf-gui01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-pf-gui01.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-pf-eie01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-pf-eie01.neustar.net'
+          hostname: 'dummyhostname.com'
+          site : 'dc15'
+      - targets:
+          - 'dc15-enum-qa-sipix-bdd01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-sipix-bdd01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-sipix-lnp01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-sipix-lnp01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-poller01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-poller01.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-gdi-app01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-gdi-app01.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-gdi-app02.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-gdi-app02.neustar.net'
+      - targets:
+          - 'dc15-enum-dev-poller01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-dev-poller01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-nai-api01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-nai-api01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-gdi-app02.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-gdi-app02.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-gdi-app01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-gdi-app01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-pf-eie01.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-pf-eie01.neustar.net'
+      - targets:
+          - 'dc15-enum-qa-pf-eie02.neustar.net:9106'
+        labels:
+          env: 'production'
+          instance: 'dc15-enum-qa-pf-eie02.neustar.net'

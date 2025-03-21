@@ -1,92 +1,112 @@
-import java.io.*;
-import java.util.*;
+ try {
 
-public class CDRComparator {
-    // Fields to ignore (based on Mapping.csv analysis)
-    private static final Set<Integer> IGNORE_FIELDS = new HashSet<>(Arrays.asList(
-        0, 1, 2, 10, 15, 39, 43, 44, 45, 46
-    ));
-    
-    private static Map<Integer, String> fieldMapping = new HashMap<>();
+            if (l_querierIP.isEmpty()) {
+                cdr.setAppRetCode(AppRetCodeConstants.OrigIpNotFound);
+                log.info("Querier IP could not be found");
+                connectionCount.decrementAndGet();
+                return helper.sendValidationFailureResponse(HttpStatus.UNAUTHORIZED, Optional.of("IP Queried from is unauthorized"), xrequestIDVal);
+            } else
+                cdr.setCustIP(l_querierIP.get(0));
 
-    public static void main(String[] args) throws IOException {
-        // Load field mappings from Mapping.csv
-        loadFieldMappings("Mapping.csv");
+            log.info("Customer IP is {}", cdr.getCustIP());
+            log.info("Customer ID is {}", l_custid);
+            log.info("Error Msg is {} ", l_errMsg);
 
-        // Load and parse Java and C++ CDR files
-        Map<String, List<String>> javaCDR = parseCDR("Java CDR.txt");
-        Map<String, List<String>> cppCDR = parseCDR("C++ CDR.txt");
+            for (String cust_id : l_custid) {
+                log.info("Customer ID in loop is: ", cust_id);
+                if (isAuthorized(cust_id, reqContext.getServType().getValue())) {
+                    log.info("Customer is authorized !!!");
+                    cdr.setCustIP(l_querierIP.get(0));
+                    if ("4".equals(cust_id) || "5".equals(cust_id)) {
+                        if (req_custid != null && !req_custid.isEmpty() && req_custid.chars().allMatch(Character::isDigit))
+                            cust_id = req_custid;
+                        else {
+                            log.info("throwing exception for cust_id 4 or 5");
+                            cdr.setAppRetCode(AppRetCodeConstants.CustNotFound);
+                            updateCDRForFailureCase(reqContext, cdr, tn, cust_id);
+                            helper.sendValidationFailureResponse(HttpStatus.BAD_REQUEST, Optional.of("Unknown Customer id: [" + cust_id + "]"), xrequestIDVal);
 
-        // Compare CDRs and highlight differences
-        compareCDRs(javaCDR, cppCDR);
-    }
+                        }}
+                    if (log.isDebugEnabled()) log.debug("Customer ID from Authentication is: " + cust_id);
 
-    private static void loadFieldMappings(String fileName) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] parts = line.split(",", 2);
-            if (parts.length == 2) {
-                try {
-                    int fieldNumber = Integer.parseInt(parts[0].trim());
-                    fieldMapping.put(fieldNumber, parts[1].trim());
-                } catch (NumberFormatException ignored) {
-                }
-            }
-        }
-        br.close();
-    }
+                    CustProf custProf = cacheContainer.retrieveValue(Constants.CUST_PROF, cust_id);
 
-    private static Map<String, List<String>> parseCDR(String fileName) throws IOException {
-        Map<String, List<String>> cdrData = new LinkedHashMap<>();
-        BufferedReader br = new BufferedReader(new FileReader(fileName));
-        String line;
-        String currentCase = null;
-
-        while ((line = br.readLine()) != null) {
-            line = line.trim();
-            if (line.toLowerCase().startsWith("case")) {
-                currentCase = line.split(":")[0].trim();
-                cdrData.put(currentCase, new ArrayList<>());
-            } else if (currentCase != null && !line.isEmpty()) {
-                String[] fields = line.split("\\|");
-                List<String> filteredFields = new ArrayList<>();
-                for (int i = 0; i < fields.length; i++) {
-                    if (!IGNORE_FIELDS.contains(i)) {
-                        filteredFields.add(fields[i]);
+                    if (custProf == null) {
+                        log.info("throwing exception custProf is null");
+                        cdr.setAppRetCode(AppRetCodeConstants.Err);
+                        updateCDRForFailureCase(reqContext, cdr, tn, cust_id);
+                        log.error(LoggMessages.PFQI_10215,cust_id);
+                        return helper.sendValidationFailureResponse(HttpStatus.BAD_REQUEST, Optional.of("Unknown Customer id: [" + cust_id + "]"), xrequestIDVal);
                     }
-                }
-                cdrData.put(currentCase, filteredFields);
-            }
-        }
-        br.close();
-        return cdrData;
-    }
-
-    private static void compareCDRs(Map<String, List<String>> javaCDR, Map<String, List<String>> cppCDR) {
-        System.out.println("\nComparison of Java and C++ CDRs:");
-        System.out.println("----------------------------------------------------------------------------------------------");
-        System.out.printf("%-10s %-10s %-30s %-30s %-15s%n", "Case", "Field No", "Java CDR", "C++ CDR", "Field Name");
-        System.out.println("----------------------------------------------------------------------------------------------");
-
-        for (String caseNum : javaCDR.keySet()) {
-            if (cppCDR.containsKey(caseNum)) {
-                List<String> javaFields = javaCDR.get(caseNum);
-                List<String> cppFields = cppCDR.get(caseNum);
-
-                for (int i = 0; i < Math.min(javaFields.size(), cppFields.size()); i++) {
-                    String javaVal = javaFields.get(i);
-                    String cppVal = cppFields.get(i);
-
-                    if (!javaVal.equals(cppVal)) { // Only print differences
-                        String fieldName = fieldMapping.getOrDefault(i + 1, "Unknown Field"); // Field numbers start from 1
-                        System.out.printf("%-10s %-10d %-30s %-30s %-15s%n", caseNum, i + 1, javaVal, cppVal, fieldName);
+                    else if(!custProf.getPortofcallFlag().equalsIgnoreCase("y")){
+                        log.info("Customer[{}] is not portOfCall, Returning 404",custProf.getCustid());
+                        cdr.setAppRetCode(AppRetCodeConstants.Err);
+                        updateCDRForFailureCase(reqContext, cdr, tn, cust_id);
+                        return helper.sendValidationFailureResponse(HttpStatus.NOT_FOUND, Optional.of("Not found"), xrequestIDVal);
                     }
+                    if (cc != null) {
+                        reqContext.setQueryCc(cc);
+                        //cdr.setCc(Integer.valueOf(cc));
+                    }
+
+                    log.info("query cc " + cc);
+                    reqContext.setServType(ServiceTypeEnum.pf);
+
+                    reqContext.setCustId(Integer.valueOf(cust_id));
+                    reqContext.setDeducedCustomer(custProf);
+                    reqContext.setPortOfCall(custProf.getPortofcallFlag().equalsIgnoreCase("y"));
+                    reqContext.setQueryTn(tn);
+                    reqContext.setDeducedTn(tn);
+
+                    PerfEvent event1 = new PerfEvent();
+                    event1.methodName = "pfServiceHandler.handleRequest";
+                    event1.begin();
+                    actualResponse = pfServiceHandler.handleRequest(reqContext, cdr);
+                    event1.end();
+                    event1.commit();
+
+                    exchange.getResponse().getHeaders().remove("QUERYIP");
+                    exchange.getResponse().getHeaders().remove("CUSTID");
+                    exchange.getResponse().getHeaders().remove("ErrorMsg");
+
+                    log.info("Actual response from Service Layer: " + actualResponse);
+                    PerfEvent event2 = new PerfEvent();
+                    event2.methodName = "Buildresponse.constructResponses";
+                    event2.begin();
+                    answer = BuildResponse.constructResponses(cacheContainer, actualResponse, cust_id);
+                    event2.end();
+                    event2.commit();
+                    answer.setQueried_tn(actualResponse.getQueryTn());
+                    if(cc != null && !cc.isBlank()) {
+                        answer.setLocal_tn(tn);
+                        answer.setCc(cc);
+                    }
+                    log.info("querier ip is: " + l_querierIP.get(0));
+
+
+                    PerfEvent event3 = new PerfEvent();
+                    event3.methodName = "CDR";
+                    event3.begin();
+                    setCDR(cdr, reqContext, exchange, answer, actualResponse, cc, tn, l_querierIP.get(0), xrequestIDVal);
+                    //cdrLogger.info(cdr.toString());
+                    cdrModelProcessing.writeCDR(cdr.toString());
+                    long diff = Instant.now().toEpochMilli() - appStartTime;
+                    event3.end();
+                    event3.commit();
+                    timer_app_latency.record(diff, TimeUnit.MILLISECONDS);
                 }
-            } else {
-                System.out.printf("%-10s %-10s %-30s %-30s %-15s%n", caseNum, "N/A", "PRESENT", "MISSING", "N/A");
             }
+            if (log.isDebugEnabled())
+                log.debug("Couldn't find the service {} for customer id list {}", ServiceTypeEnum.pf.getValue(), l_custid);
+        } catch (Exception e) {
+            cdr.setAppRetCode(AppRetCodeConstants.Err);
+            updateCDRForFailureCase(reqContext, cdr, tn, req_custid);
+            e.printStackTrace();
+            log.error("Exception : " + e.getMessage());
+            log.error(LoggMessages.PFQI_10231);
         }
-        System.out.println("----------------------------------------------------------------------------------------------");
-    }
-}
+        HttpHeaders httpHeader = helper.setHttpHeaders(xrequestIDVal);
+        ResponseEntity<Response> res = new ResponseEntity<Response>(answer, httpHeader, HttpStatus.ACCEPTED);
+
+        connectionCount.decrementAndGet();
+        return Mono.just(res);
